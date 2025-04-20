@@ -14,7 +14,7 @@ export class UsersController {
      * Retrieves all users.
      * @returns A list of all users.
      */
-    @Get('api/v1/users')
+    @Get('api/v1/')
     getAllUsers() {
         return this.usersService.getAllUsers();
     }
@@ -24,7 +24,7 @@ export class UsersController {
      * @param id - The UUID of the user to retrieve.
      * @returns The user with the specified ID.
      */
-    @Get('api/v1/users/:id')
+    @Get('api/v1/:id')
     getById(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.getUserById(id);
     }
@@ -35,7 +35,7 @@ export class UsersController {
      * @param user - The updated user data.
      * @returns The updated user information.
      */
-    @Patch('api/v1/users/:id')
+    @Patch('api/v1/:id')
     update(@Param('id', ParseUUIDPipe) id: string, @Body() user: UserDTO) {
         return this.usersService.updateUser(id, user);
     }
@@ -45,7 +45,7 @@ export class UsersController {
      * @param id - The UUID of the user to delete.
      * @returns A confirmation of the deletion.
      */
-    @Delete('api/v1/users/:id')
+    @Delete('api/v1/:id')
     delete(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.deleteUser(id);
     }
@@ -55,18 +55,9 @@ export class UsersController {
      * @param user - The data of the user to create.
      * @returns The newly created user.
      */
-    @Post('api/v1/users/')
+    @Post('api/v1/')
     create(@Body() user: UserDTO) {
         return this.usersService.createUser(user);
     }
 
-    /**
-     * Logs in a user with their email and password.
-     * @param user - The login credentials of the user.
-     * @returns A token or session information for the logged-in user.
-     */
-    @Post('api/v1/users/login')
-    logIn(@Body() user: UserDTO) {
-        return this.usersService.logIn(user.email, user.password);
-    }
 }

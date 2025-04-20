@@ -69,6 +69,14 @@ export class UsersService {
         return user;
     }
 
+    async getUserByEmail(email: string): Promise<User> {
+        const user = await this.userRepository.findOne({ where: { email } });
+        if (!user) {
+            throw new NotFoundException('El usuario no existe');
+        }
+        return user;
+    }
+
     /**
      * Updates an existing user's information.
      *
@@ -104,30 +112,6 @@ export class UsersService {
             throw new NotFoundException('El usuario no existe');
         }
     }
-
-    /**
-     * Logs in a user with their email and password.
-     *
-     * @param email - The email address of the user.
-     * @param password - The password of the user.
-     * @returns A promise that resolves to the user entity if login is successful.
-     * @throws An error if the user does not exist or if the password is incorrect.
-     *
-     * @remarks
-     * - This method verifies the user's credentials and returns the user entity if valid.
-     */
-    async logIn(email: string, password: string): Promise<User> {
-        const user = await this.userRepository.findOne({ where: { email } });
-        if (!user) {
-            throw new NotFoundException('El usuario no existe');
-        }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            throw new NotFoundException('La contraseña es incorrecta');
-        }
-        return user;
-    }
-
 
 
 }
