@@ -15,6 +15,18 @@ export class UsersService {
         @InjectRepository(User) private readonly userRepository: Repository<User>,
     ) {}
 
+    /**
+     * Creates a new user in the system.
+     *
+     * @param user - The data transfer object (DTO) containing the user's information.
+     *               Must include properties such as `email` and `password`.
+     * @returns A promise that resolves to the newly created user entity.
+     * @throws An error if a user with the same email already exists.
+     *
+     * @remarks
+     * - The user's password is hashed before being saved to the database for security purposes.
+     * - This method ensures that duplicate users cannot be created based on their email address.
+     */
     async createUser(user: UserDTO):Promise<User> {
         const userExists = await this.userRepository.findOne({ where: { email: user.email } });
         if (userExists) {
@@ -27,10 +39,28 @@ export class UsersService {
         return this.userRepository.save(newUser);
     }
 
+    /**
+     * Retrieves all users from the system.
+     *
+     * @returns A promise that resolves to an array of user entities.
+     *
+     * @remarks
+     * - This method fetches all users stored in the database.
+     */
     getAllUsers(): Promise<User[]> {
         return this.userRepository.find();
     }
 
+    /**
+     * Retrieves a user by their unique identifier.
+     *
+     * @param id - The UUID of the user to retrieve.
+     * @returns A promise that resolves to the user entity if found.
+     * @throws An error if the user with the specified ID does not exist.
+     *
+     * @remarks
+     * - This method looks up a user in the database using their unique identifier.
+     */
     async getUserById(id: string): Promise<User> {
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) {
@@ -39,6 +69,17 @@ export class UsersService {
         return user;
     }
 
+    /**
+     * Updates an existing user's information.
+     *
+     * @param id - The UUID of the user to update.
+     * @param user - The data transfer object (DTO) containing the updated user's information.
+     * @returns A promise that resolves to the updated user entity.
+     * @throws An error if the user with the specified ID does not exist.
+     *
+     * @remarks
+     * - This method updates the user's information in the database.
+     */
     async updateUser(id: string, user: UserDTO): Promise<User> {
         const result = await this.userRepository.update(id, user);
         if (result.affected === 0) {
@@ -47,6 +88,16 @@ export class UsersService {
         return this.getUserById(id);
     }
 
+    /**
+     * Deletes a user from the system.
+     *
+     * @param id - The UUID of the user to delete.
+     * @returns A promise that resolves when the user is successfully deleted.
+     * @throws An error if the user with the specified ID does not exist.
+     *
+     * @remarks
+     * - This method removes a user from the database.
+     */
     async deleteUser(id: string): Promise<void> {
         const result = await this.userRepository.delete(id);
         if (result.affected === 0) {
@@ -54,6 +105,17 @@ export class UsersService {
         }
     }
 
+    /**
+     * Logs in a user with their email and password.
+     *
+     * @param email - The email address of the user.
+     * @param password - The password of the user.
+     * @returns A promise that resolves to the user entity if login is successful.
+     * @throws An error if the user does not exist or if the password is incorrect.
+     *
+     * @remarks
+     * - This method verifies the user's credentials and returns the user entity if valid.
+     */
     async logIn(email: string, password: string): Promise<User> {
         const user = await this.userRepository.findOne({ where: { email } });
         if (!user) {
