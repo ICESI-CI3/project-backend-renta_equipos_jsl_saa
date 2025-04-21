@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDTO } from './dto/user.dto';
+import { PaginationDTO } from 'src/common/dto/pagination.dto';
 
 /**
  * Controller for managing user-related operations.
@@ -12,11 +13,12 @@ export class UsersController {
 
     /**
      * Retrieves all users.
+     * @param pagination - Optional pagination parameters.
      * @returns A list of all users.
      */
     @Get('api/v1/')
-    getAllUsers() {
-        return this.usersService.getAllUsers();
+    getAllUsers(@Query() pagination: PaginationDTO) {
+        return this.usersService.getAllUsers(pagination);
     }
 
     /**

@@ -1,12 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserDTO } from './dto/user.dto';
 import bcrypt from 'bcrypt';
 import { NotFoundError } from 'rxjs';
+import { PaginationDTO } from 'src/common/dto/pagination.dto';
 
-
+/**
+ * Service for managing user-related operations.
+ * Handles user creation, retrieval, updating, and deletion.
+ * Interacts with the database through TypeORM repositories.
+ */
 @Injectable()
 export class UsersService {
 
@@ -28,15 +33,25 @@ export class UsersService {
      * - This method ensures that duplicate users cannot be created based on their email address.
      */
     async createUser(user: UserDTO):Promise<User> {
-        const userExists = await this.userRepository.findOne({ where: { email: user.email } });
-        if (userExists) {
-            throw new Error('El usuario ya existe');
+
+        try {
+
+            const userExists = await this.userRepository.findOne({ where: { email: user.email } });
+            if (userExists) {
+                throw new Error('El usuario ya existe');
+            }
+    
+            user.password = await bcrypt.hash(user.password, 10);
+    
+            let newUser = await this.userRepository.create(user);
+
+            return this.userRepository.save(newUser);
+            
+        } catch (error) {
+            throw new InternalServerErrorException('Error al crear el usuario', error.message);
         }
-
-        user.password = await bcrypt.hash(user.password, 10);
-
-        let newUser = await this.userRepository.create(user);
-        return this.userRepository.save(newUser);
+       
+        
     }
 
     /**
@@ -47,8 +62,13 @@ export class UsersService {
      * @remarks
      * - This method fetches all users stored in the database.
      */
-    getAllUsers(): Promise<User[]> {
-        return this.userRepository.find();
+    getAllUsers(pagination : PaginationDTO): Promise<User[]> {
+        const { limit = 10, offset = 0 } = pagination;
+
+        return this.userRepository.find({
+            take: limit,
+            skip: offset
+        });
     }
 
     /**

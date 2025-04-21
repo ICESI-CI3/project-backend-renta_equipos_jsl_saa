@@ -1,5 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+/**
+ * Device entity representing a device in the system.
+ * This entity is used to store device information in the database.
+ * It includes properties such as id, name, description, type, status, stock, image, and slug.
+ */
 @Entity()
 export class Device {
     
@@ -24,5 +29,14 @@ export class Device {
     @Column('text')
     image: string;
 
+    @Column('text', {unique: true})
+    slug: string;
+    
+    @BeforeInsert()
+    checkSlug() : void{
+        if (!this.slug) {
+            this.slug = this.name.toLowerCase().replaceAll(' ', '_').replaceAll('\'', '');
+        }
+    }
    
 }
