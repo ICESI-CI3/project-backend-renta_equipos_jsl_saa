@@ -48,7 +48,7 @@ export class DevicesService {
             }
             return updatedDevice;
             
-        }
+    }
     
     async deleteDevice(id: string): Promise<void> {
         const deviceExists = await this.deviceRepository.findOne({ where: { id } });
@@ -56,12 +56,6 @@ export class DevicesService {
             throw new NotFoundError('El dispositivo no existe');
         }
         await this.deviceRepository.delete(id);
-        const deletedDevice = await this.deviceRepository.findOne({ where: { id } });
-        if (deletedDevice) {
-            throw new NotFoundError('El dispositivo no existe');
-        }
-        return;
-    
     }
 
     async getDeviceByName(name: string): Promise<Device> {
@@ -74,38 +68,28 @@ export class DevicesService {
 
     async getDeviceByType(type: string): Promise<Device[]> {
         const devices = await this.deviceRepository.find({ where: { type } });
-        if (!devices) {
+        if (!devices || devices.length === 0) {
             throw new NotFoundError('No existen dispositivos de este tipo');
         }
         return devices;
-    
     }
-
+    
     async getDeviceByStatus(status: string): Promise<Device[]> {
         const devices = await this.deviceRepository.find({ where: { status } });
-        if (!devices) {
+        if (!devices || devices.length === 0) {
             throw new NotFoundError('No existen dispositivos de este estado');
         }
         return devices;
     }
-
+    
     async getDeviceByStock(stock: number): Promise<Device[]> {
         const devices = await this.deviceRepository.find({ where: { stock } });
-        if (!devices) {
+        if (!devices || devices.length === 0) {
             throw new NotFoundError('No existen dispositivos con este stock');
         }
         return devices;
-
     }
 
     
-
-    
-
-
-
-
-
-
     
 }
