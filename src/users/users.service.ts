@@ -90,7 +90,10 @@ export class UsersService {
     }
 
     async getUserByEmail(email: string): Promise<User> {
-        const user = await this.userRepository.findOne({ where: { email } });
+        const user = await this.userRepository.findOne({ 
+            where: { email },
+            select: [ 'email', 'password' ] 
+        });
         if (!user) {
             throw new NotFoundException('El usuario no existe');
         }
