@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Device {
-    
+
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -18,11 +18,6 @@ export class Device {
     @Column('text')
     status: string;
 
-    @Column('int')
-    stock: number;
-
     @Column('text')
     image: string;
-
-   
 }

@@ -55,7 +55,6 @@ describe('DevicesController', () => {
         description: 'Device Description', 
         type: 'Device Type', 
         status: 'Available', 
-        stock: 10, 
         image: 'image-url' 
       };
       controller.update(id, device);
@@ -72,17 +71,17 @@ describe('DevicesController', () => {
   });
 
   describe('create', () => {
-    it('should call DevicesService.createDevice with correct device', () => {
+    it('should call DevicesService.createDevice with correct device and stock', () => {
       const device: CreateDeviceDto = { 
         name: 'Device Name', 
         description: 'Device Description', 
         type: 'Device Type', 
         status: 'Available', 
-        stock: 10, 
         image: 'image-url' 
       };
-      controller.create(device);
-      expect(service.createDevice).toHaveBeenCalledWith(device);
+      const stock = 10;
+      controller.create(device, stock) // Aquí pasamos `device` y `stock` por separado
+      expect(service.createDevice).toHaveBeenCalledWith(device, stock);
     });
   });
 });

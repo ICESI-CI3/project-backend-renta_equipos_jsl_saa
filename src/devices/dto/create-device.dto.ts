@@ -1,7 +1,7 @@
-import { IsInt, IsString, Min } from "class-validator";
+import { IsString } from "class-validator";
 
 export class CreateDeviceDto {
-    
+
     @IsString()
     readonly name: string;
 
@@ -13,10 +13,6 @@ export class CreateDeviceDto {
 
     @IsString()
     readonly status: string;
-
-    @IsInt()
-    @Min(0, { message: 'El stock no puede ser menor a 0' })
-    readonly stock: number;
 
     @IsString()
     readonly image: string;

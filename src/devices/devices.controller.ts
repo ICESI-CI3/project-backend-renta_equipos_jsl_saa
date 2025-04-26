@@ -27,8 +27,13 @@ export class DevicesController {
         return this.devicesService.deleteDevice(id);
     }
 
-    @Post('api/v1/')
-    create(@Body() device: CreateDeviceDto) {
-        return this.devicesService.createDevice(device);
+    @Post()
+    create(@Body() device: CreateDeviceDto, @Body('stock') stock: number) {
+    return this.devicesService.createDevice(device, stock);
+    }
+
+    @Get('api/v1/stock/:name')
+    getStock(@Param('name') name: string) {
+        return this.devicesService.getStock(name);
     }
 }

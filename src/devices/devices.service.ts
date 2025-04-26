@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Device } from './entities/device.entity';
 import { Repository } from 'typeorm';
 import { CreateDeviceDto } from './dto/create-device.dto';
@@ -13,16 +13,26 @@ export class DevicesService {
     ) {}
 
 
-    async createDevice(device: CreateDeviceDto): Promise<Device> {
-        const deviceExists = await this.deviceRepository.findOne({ where: { name: device.name } });
-        if (deviceExists) {
+    async createDevice(device: CreateDeviceDto, stock: number): Promise<Device[]> {
+        const existingDevice = await this.deviceRepository.findOne({ where: { name: device.name } });
+    
+        if (existingDevice) {
             throw new Error('El dispositivo ya existe');
         }
-
-        let newDevice = await this.deviceRepository.create(device);
-        return this.deviceRepository.save(newDevice);
+    
+        const createdDevices: Device[] = [];
+    
+        for (let i = 0; i < stock; i++) {
+            const newDevice = this.deviceRepository.create({ ...device });
+            const savedDevice = await this.deviceRepository.save(newDevice);
+            createdDevices.push(savedDevice);
+        }
+    
+        return createdDevices;
     }
-
+    
+    
+    
     async getAllDevices(): Promise<Device[]> {
         return this.deviceRepository.find();
     }
@@ -81,14 +91,18 @@ export class DevicesService {
         }
         return devices;
     }
+
+    async getStock(deviceName: string): Promise<number> {
+        const count = await this.deviceRepository.count({ where: { name: deviceName } });
     
-    async getDeviceByStock(stock: number): Promise<Device[]> {
-        const devices = await this.deviceRepository.find({ where: { stock } });
-        if (!devices || devices.length === 0) {
-            throw new NotFoundError('No existen dispositivos con este stock');
+        if (count === 0) {
+            throw new NotFoundException(`No devices found with name: ${deviceName}`);
         }
-        return devices;
+    
+        return count;
     }
+    
+   
 
     
     

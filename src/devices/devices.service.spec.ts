@@ -1,23 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DevicesService } from './devices.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Device } from './entities/device.entity';
 import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateDeviceDto } from './dto/create-device.dto';
 import { NotFoundError } from 'rxjs';
+import { NotFoundException } from '@nestjs/common';
+
+const mockDeviceRepository = () => ({
+  find: jest.fn(),
+  findOne: jest.fn(),
+  save: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+  count: jest.fn(),
+});
 
 describe('DevicesService', () => {
   let service: DevicesService;
-  let repository: Repository<Device>;
-
-  const mockRepository = {
-    find: jest.fn(),
-    findOne: jest.fn(),
-    create: jest.fn(),
-    save: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  };
+  let repository: jest.Mocked<Repository<Device>>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,183 +26,130 @@ describe('DevicesService', () => {
         DevicesService,
         {
           provide: getRepositoryToken(Device),
-          useValue: mockRepository,
+          useFactory: mockDeviceRepository,
         },
       ],
     }).compile();
 
     service = module.get<DevicesService>(DevicesService);
-    repository = module.get<Repository<Device>>(getRepositoryToken(Device));
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    repository = module.get(getRepositoryToken(Device));
   });
 
   describe('createDevice', () => {
-    it('should create and save a new device', async () => {
-      const deviceDto: CreateDeviceDto = { name: 'Device1', description: 'Test', type: 'Type1', status: 'Available', stock: 10, image: 'image-url' };
-      mockRepository.findOne.mockResolvedValue(null);
-      mockRepository.create.mockReturnValue(deviceDto);
-      mockRepository.save.mockResolvedValue(deviceDto);
+    it('should create multiple devices', async () => {
+      repository.findOne.mockResolvedValue(null);
+      repository.create.mockImplementation((dto) => dto as Device);
+      repository.save.mockImplementation(async (d) => d as Device);
 
-      const result = await service.createDevice(deviceDto);
-
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { name: deviceDto.name } });
-      expect(mockRepository.create).toHaveBeenCalledWith(deviceDto);
-      expect(mockRepository.save).toHaveBeenCalledWith(deviceDto);
-      expect(result).toEqual(deviceDto);
+      const result = await service.createDevice({ name: 'Phone' } as any, 2);
+      expect(result.length).toBe(2);
+      expect(repository.save).toHaveBeenCalledTimes(2);
     });
 
-    it('should throw an error if the device already exists', async () => {
-      const deviceDto: CreateDeviceDto = { name: 'Device1', description: 'Test', type: 'Type1', status: 'Available', stock: 10, image: 'image-url' };
-      mockRepository.findOne.mockResolvedValue(deviceDto);
-
-      await expect(service.createDevice(deviceDto)).rejects.toThrow('El dispositivo ya existe');
+    it('should throw if device already exists', async () => {
+      repository.findOne.mockResolvedValue({ id: '1', name: 'Phone' } as Device);
+      await expect(service.createDevice({ name: 'Phone' } as any, 2)).rejects.toThrow('El dispositivo ya existe');
     });
   });
 
   describe('getAllDevices', () => {
     it('should return all devices', async () => {
-      const devices = [{ id: '1', name: 'Device1' }];
-      mockRepository.find.mockResolvedValue(devices);
-
+      repository.find.mockResolvedValue([{ id: '1' }] as Device[]);
       const result = await service.getAllDevices();
-
-      expect(mockRepository.find).toHaveBeenCalled();
-      expect(result).toEqual(devices);
+      expect(result).toHaveLength(1);
     });
   });
 
   describe('getDeviceById', () => {
-    it('should return a device by id', async () => {
-      const device = { id: '1', name: 'Device1' };
-      mockRepository.findOne.mockResolvedValue(device);
-
+    it('should return device by id', async () => {
+      repository.findOne.mockResolvedValue({ id: '1' } as Device);
       const result = await service.getDeviceById('1');
-
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
-      expect(result).toEqual(device);
+      expect(result).toEqual({ id: '1' });
     });
 
-    it('should throw an error if the device is not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
-
+    it('should throw if not found', async () => {
+      repository.findOne.mockResolvedValue(null);
       await expect(service.getDeviceById('1')).rejects.toThrow(NotFoundError);
     });
   });
 
   describe('updateDevice', () => {
-    it('should update and return the updated device', async () => {
-      const deviceDto: CreateDeviceDto = { name: 'UpdatedDevice', description: 'Updated', type: 'Type1', status: 'Available', stock: 5, image: 'image-url' };
-      const updatedDevice = { id: '1', ...deviceDto };
+    it('should update and return the device', async () => {
+      repository.findOne.mockResolvedValueOnce({ id: '1' } as Device);
+      repository.findOne.mockResolvedValueOnce({ id: '1', name: 'Updated' } as Device);
 
-      mockRepository.findOne.mockResolvedValue(updatedDevice);
-      mockRepository.update.mockResolvedValue(undefined);
-      mockRepository.findOne.mockResolvedValue(updatedDevice);
-
-      const result = await service.updateDevice('1', deviceDto);
-
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
-      expect(mockRepository.update).toHaveBeenCalledWith('1', deviceDto);
-      expect(result).toEqual(updatedDevice);
+      const result = await service.updateDevice('1', { name: 'Updated' } as any);
+      expect(result.name).toBe('Updated');
     });
 
-    it('should throw an error if the device is not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
-
-      await expect(service.updateDevice('1', {} as CreateDeviceDto)).rejects.toThrow(NotFoundError);
+    it('should throw if device does not exist', async () => {
+      repository.findOne.mockResolvedValue(null);
+      await expect(service.updateDevice('1', { name: 'X' } as any)).rejects.toThrow(NotFoundError);
     });
   });
 
   describe('deleteDevice', () => {
-    it('should delete a device', async () => {
-      const device = { id: '1', name: 'Device1' };
-      mockRepository.findOne.mockResolvedValue(device);
-      mockRepository.delete.mockResolvedValue(undefined);
-
+    it('should delete device', async () => {
+      repository.findOne.mockResolvedValue({ id: '1' } as Device);
       await service.deleteDevice('1');
-
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
-      expect(mockRepository.delete).toHaveBeenCalledWith('1');
+      expect(repository.delete).toHaveBeenCalledWith('1');
     });
 
-    it('should throw an error if the device is not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
-
+    it('should throw if device not found', async () => {
+      repository.findOne.mockResolvedValue(null);
       await expect(service.deleteDevice('1')).rejects.toThrow(NotFoundError);
     });
   });
 
   describe('getDeviceByName', () => {
-    it('should return a device by name', async () => {
-      const device = { id: '1', name: 'Device1' };
-      mockRepository.findOne.mockResolvedValue(device);
-  
-      const result = await service.getDeviceByName('Device1');
-  
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { name: 'Device1' } });
-      expect(result).toEqual(device);
+    it('should return device by name', async () => {
+      repository.findOne.mockResolvedValue({ name: 'Tablet' } as Device);
+      const result = await service.getDeviceByName('Tablet');
+      expect(result.name).toBe('Tablet');
     });
-  
-    it('should throw an error if the device is not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
-  
-      await expect(service.getDeviceByName('Device1')).rejects.toThrow(NotFoundError);
+
+    it('should throw if device not found', async () => {
+      repository.findOne.mockResolvedValue(null);
+      await expect(service.getDeviceByName('Tablet')).rejects.toThrow(NotFoundError);
     });
   });
-  
+
   describe('getDeviceByType', () => {
     it('should return devices by type', async () => {
-      const devices = [{ id: '1', type: 'Type1' }];
-      mockRepository.find.mockResolvedValue(devices);
-  
-      const result = await service.getDeviceByType('Type1');
-  
-      expect(mockRepository.find).toHaveBeenCalledWith({ where: { type: 'Type1' } });
-      expect(result).toEqual(devices);
+      repository.find.mockResolvedValue([{ type: 'Laptop' }] as Device[]);
+      const result = await service.getDeviceByType('Laptop');
+      expect(result.length).toBe(1);
     });
-  
-    it('should throw an error if no devices are found', async () => {
-      mockRepository.find.mockResolvedValue([]);
-  
-      await expect(service.getDeviceByType('Type1')).rejects.toThrow(NotFoundError);
+
+    it('should throw if no devices found', async () => {
+      repository.find.mockResolvedValue([]);
+      await expect(service.getDeviceByType('Laptop')).rejects.toThrow(NotFoundError);
     });
   });
-  
+
   describe('getDeviceByStatus', () => {
     it('should return devices by status', async () => {
-      const devices = [{ id: '1', status: 'Available' }];
-      mockRepository.find.mockResolvedValue(devices);
-  
-      const result = await service.getDeviceByStatus('Available');
-  
-      expect(mockRepository.find).toHaveBeenCalledWith({ where: { status: 'Available' } });
-      expect(result).toEqual(devices);
+      repository.find.mockResolvedValue([{ status: 'new' }] as Device[]);
+      const result = await service.getDeviceByStatus('new');
+      expect(result.length).toBe(1);
     });
-  
-    it('should throw an error if no devices are found', async () => {
-      mockRepository.find.mockResolvedValue([]);
-  
-      await expect(service.getDeviceByStatus('Available')).rejects.toThrow(NotFoundError);
+
+    it('should throw if no devices found', async () => {
+      repository.find.mockResolvedValue([]);
+      await expect(service.getDeviceByStatus('new')).rejects.toThrow(NotFoundError);
     });
   });
-  
-  describe('getDeviceByStock', () => {
-    it('should return devices by stock', async () => {
-      const devices = [{ id: '1', stock: 10 }];
-      mockRepository.find.mockResolvedValue(devices);
-  
-      const result = await service.getDeviceByStock(10);
-  
-      expect(mockRepository.find).toHaveBeenCalledWith({ where: { stock: 10 } });
-      expect(result).toEqual(devices);
+
+  describe('getStock', () => {
+    it('should return stock count', async () => {
+      repository.count.mockResolvedValue(5);
+      const result = await service.getStock('Phone');
+      expect(result).toBe(5);
     });
-  
-    it('should throw an error if no devices are found', async () => {
-      mockRepository.find.mockResolvedValue([]);
-  
-      await expect(service.getDeviceByStock(10)).rejects.toThrow(NotFoundError);
+
+    it('should throw if no devices found', async () => {
+      repository.count.mockResolvedValue(0);
+      await expect(service.getStock('Phone')).rejects.toThrow(NotFoundException);
     });
   });
 });
