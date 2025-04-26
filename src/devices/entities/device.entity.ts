@@ -19,5 +19,8 @@ export class Device {
     status: string;
 
     @Column('text')
+    owner: string;
+
+    @Column('text')
     image: string;
 }

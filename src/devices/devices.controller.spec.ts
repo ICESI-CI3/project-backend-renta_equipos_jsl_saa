@@ -54,7 +54,8 @@ describe('DevicesController', () => {
         name: 'Device Name', 
         description: 'Device Description', 
         type: 'Device Type', 
-        status: 'Available', 
+        status: 'Available',
+        owner: 'Owner Name', 
         image: 'image-url' 
       };
       controller.update(id, device);
@@ -76,7 +77,8 @@ describe('DevicesController', () => {
         name: 'Device Name', 
         description: 'Device Description', 
         type: 'Device Type', 
-        status: 'Available', 
+        status: 'Available',
+        owner: 'Owner Name', 
         image: 'image-url' 
       };
       const stock = 10;

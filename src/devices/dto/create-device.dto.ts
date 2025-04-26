@@ -15,5 +15,8 @@ export class CreateDeviceDto {
     readonly status: string;
 
     @IsString()
+    readonly owner: string;
+
+    @IsString()
     readonly image: string;
 }
