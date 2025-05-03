@@ -3,11 +3,11 @@ import { RequestDevicesService } from './request_devices.service';
 import { CreateRequestDeviceDto } from './dto/create-request_device.dto';
 import { RequestDevice } from './entities/request_device.entity';
 
-@Controller('request-devices')
+@Controller('api/v1/request-devices')
 export class RequestDevicesController {
   constructor(private readonly requestDevicesService: RequestDevicesService) {}
 
-  @Post("api/v1/")
+  @Post("")
   async createRequestDevice(
     @Body() requestDeviceDto: CreateRequestDeviceDto,
     @Query('quantity') quantity: number,
@@ -15,17 +15,17 @@ export class RequestDevicesController {
     return this.requestDevicesService.createRequestDevice(requestDeviceDto, quantity);
   }
 
-  @Get("api/v1/")
+  @Get("")
   async getAllRequestDevices(): Promise<RequestDevice[]> {
     return this.requestDevicesService.getAllRequestDevices();
   }
 
-  @Get('api/v1/:id')
+  @Get(':id')
   async getRequestDeviceById(@Param('id', ParseUUIDPipe) id: string): Promise<RequestDevice> {
     return this.requestDevicesService.getRequestDeviceById(id);
   }
 
-  @Put('api/v1/:id')
+  @Put(':id')
   async updateRequestDevice(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() requestDeviceDto: CreateRequestDeviceDto,
@@ -33,12 +33,12 @@ export class RequestDevicesController {
     return this.requestDevicesService.updateRequestDevice(id, requestDeviceDto);
   }
 
-  @Delete('api/v1/:id')
+  @Delete(':id')
   async deleteRequestDevice(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.requestDevicesService.deleteRequestDevice(id);
   }
 
-  @Get('api/v1/by-device-name/:deviceName')
+  @Get(':deviceName')
   async getRequestDevicesByDeviceName(@Param('deviceName') deviceName: string): Promise<RequestDevice[]> {
     return this.requestDevicesService.getRequestDevicesByDeviceName(deviceName);
   }
