@@ -31,10 +31,11 @@ export class RequestsController {
         return this.requestsService.createRequest(request);
     }
 
-    @Get("api/v1/user/:user_Document")
-    getByUserDocument(@Param("user_Document") user_Document: string) {
-        return this.requestsService.getRequestByUserDocument(user_Document);
+    @Get("api/v1/user/:user_email")
+    getByUserEmail(@Param("user_email") user_email: string) {
+        return this.requestsService.getRequestByUserEmail(user_email);
     }
+
 
     @Get("api/v1/status/:status")
     getByStatus(@Param("status") status: string) {

@@ -4,17 +4,19 @@ import { Repository } from "typeorm";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { NotFoundError } from "rxjs";
 import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "../users/entities/user.entity";
 
 @Injectable()
 export class RequestsService {
     constructor(
         @InjectRepository(Request) private readonly requestRepository: Repository<Request>,
+        @InjectRepository(User) private readonly userRepository: Repository<User>
     ) {}
 
     async createRequest(request: CreateRequestDto): Promise<Request> {
-        const requestExists = await this.requestRepository.findOne({ where: { id: request.id } }); // Ensure 'name' exists in the Request entity
-        if (requestExists) {
-        throw new Error("La solicitud ya existe");
+        const userEmailExists = await this.userRepository.findOne({ where: { email: request.user_email } });
+        if (!userEmailExists) {
+        throw new Error("El usuario no existe");
         }
 
         let newRequest = await this.requestRepository.create(request);
@@ -53,10 +55,10 @@ export class RequestsService {
         }
         await this.requestRepository.delete(id);
     }
-    async getRequestByUserDocument(user_Document: string): Promise<Request[]> {
-        const requests = await this.requestRepository.find({ where: { user_Document } });
+    async getRequestByUserEmail(user_email: string): Promise<Request[]> {
+        const requests = await this.requestRepository.find({ where: { user_email } });
         if (!requests || requests.length === 0) { // Verifica si el array está vacío
-            throw new NotFoundError("No se encontraron solicitudes para este documento de usuario");
+            throw new NotFoundError("No se encontraron solicitudes para este usuario");
         }
         return requests;
     }

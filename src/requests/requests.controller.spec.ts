@@ -2,105 +2,93 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RequestsController } from './requests.controller';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
+import { Request } from './entities/request.entity';
 
 describe('RequestsController', () => {
   let controller: RequestsController;
   let service: RequestsService;
 
-  const mockRequestsService = {
-    getAllRequests: jest.fn(),
-    getRequestById: jest.fn(),
-    updateRequest: jest.fn(),
-    deleteRequest: jest.fn(),
-    createRequest: jest.fn(),
-    getRequestByUserDocument: jest.fn(),
-    getRequestByStatus: jest.fn(),
+  const mockRequest: Request = {
+    id: 'uuid-1234',
+    user_email: 'test@example.com',
+    date_Request: new Date(),
+    status: 'pending',
+    admin_comment: 'Test comment',
+  };
+
+  const mockService = {
+    getAllRequests: jest.fn().mockResolvedValue([mockRequest]),
+    getRequestById: jest.fn().mockResolvedValue(mockRequest),
+    updateRequest: jest.fn().mockResolvedValue(mockRequest),
+    deleteRequest: jest.fn().mockResolvedValue(undefined),
+    createRequest: jest.fn().mockResolvedValue(mockRequest),
+    getRequestByUserEmail: jest.fn().mockResolvedValue([mockRequest]),
+    getRequestByStatus: jest.fn().mockResolvedValue([mockRequest]),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RequestsController],
-      providers: [
-        {
-          provide: RequestsService,
-          useValue: mockRequestsService,
-        },
-      ],
+      providers: [{ provide: RequestsService, useValue: mockService }],
     }).compile();
 
     controller = module.get<RequestsController>(RequestsController);
     service = module.get<RequestsService>(RequestsService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('should return all requests', async () => {
+    const result = await controller.getAllRequests();
+    expect(result).toEqual([mockRequest]);
+    expect(service.getAllRequests).toHaveBeenCalled();
   });
 
-  describe('getAllRequests', () => {
-    it('should call RequestsService.getAllRequests', () => {
-      controller.getAllRequests();
-      expect(service.getAllRequests).toHaveBeenCalled();
-    });
+  it('should return a request by ID', async () => {
+    const result = await controller.getById('uuid-1234');
+    expect(result).toEqual(mockRequest);
+    expect(service.getRequestById).toHaveBeenCalledWith('uuid-1234');
   });
 
-  describe('getById', () => {
-    it('should call RequestsService.getRequestById with correct id', () => {
-      const id = 'some-uuid';
-      controller.getById(id);
-      expect(service.getRequestById).toHaveBeenCalledWith(id);
-    });
+  it('should update a request', async () => {
+    const dto: CreateRequestDto = {
+      id: 'uuid-1234',
+      user_email: 'test@example.com',
+      date_Request: new Date(),
+      status: 'approved',
+      admin_comment: 'Updated',
+    };
+    const result = await controller.update('uuid-1234', dto);
+    expect(result).toEqual(mockRequest);
+    expect(service.updateRequest).toHaveBeenCalledWith('uuid-1234', dto);
   });
 
-  describe('update', () => {
-    it('should call RequestsService.updateRequest with correct id and request', () => {
-      const id = 'some-uuid';
-      const request: CreateRequestDto = {
-        id: '1',
-        user_Document: '12345',
-        date_Request: new Date(),
-        status: 'pending',
-        admin_comment: 'Initial request',
-      };
-      controller.update(id, request);
-      expect(service.updateRequest).toHaveBeenCalledWith(id, request);
-    });
+  it('should delete a request', async () => {
+    const result = await controller.delete('uuid-1234');
+    expect(result).toBeUndefined();
+    expect(service.deleteRequest).toHaveBeenCalledWith('uuid-1234');
   });
 
-  describe('delete', () => {
-    it('should call RequestsService.deleteRequest with correct id', () => {
-      const id = 'some-uuid';
-      controller.delete(id);
-      expect(service.deleteRequest).toHaveBeenCalledWith(id);
-    });
+  it('should create a new request', async () => {
+    const dto: CreateRequestDto = {
+      id: 'uuid-1234',
+      user_email: 'test@example.com',
+      date_Request: new Date(),
+      status: 'pending',
+      admin_comment: 'New request',
+    };
+    const result = await controller.create(dto);
+    expect(result).toEqual(mockRequest);
+    expect(service.createRequest).toHaveBeenCalledWith(dto);
   });
 
-  describe('create', () => {
-    it('should call RequestsService.createRequest with correct request', () => {
-      const request: CreateRequestDto = {
-        id: '1',
-        user_Document: '12345',
-        date_Request: new Date(),
-        status: 'pending',
-        admin_comment: 'Initial request',
-      };
-      controller.create(request);
-      expect(service.createRequest).toHaveBeenCalledWith(request);
-    });
+  it('should return requests by user email', async () => {
+    const result = await controller.getByUserEmail('test@example.com');
+    expect(result).toEqual([mockRequest]);
+    expect(service.getRequestByUserEmail).toHaveBeenCalledWith('test@example.com');
   });
 
-  describe('getByUserDocument', () => {
-    it('should call RequestsService.getRequestByUserDocument with correct user_Document', () => {
-      const user_Document = '12345';
-      controller.getByUserDocument(user_Document);
-      expect(service.getRequestByUserDocument).toHaveBeenCalledWith(user_Document);
-    });
-  });
-
-  describe('getByStatus', () => {
-    it('should call RequestsService.getRequestByStatus with correct status', () => {
-      const status = 'pending';
-      controller.getByStatus(status);
-      expect(service.getRequestByStatus).toHaveBeenCalledWith(status);
-    });
+  it('should return requests by status', async () => {
+    const result = await controller.getByStatus('pending');
+    expect(result).toEqual([mockRequest]);
+    expect(service.getRequestByStatus).toHaveBeenCalledWith('pending');
   });
 });

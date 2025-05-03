@@ -6,7 +6,7 @@ export class CreateRequestDto {
     readonly id: string;
     
     @IsString()
-    readonly user_Document: string;
+    readonly user_email: string;
 
     @IsDate()
     readonly date_Request: Date;

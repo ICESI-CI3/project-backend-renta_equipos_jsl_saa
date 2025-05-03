@@ -6,7 +6,7 @@ export class Request {
     id: string;
 
    @Column('text')
-    user_Document: string;
+    user_email: string;
 
     @Column('date')
     date_Request: Date;
