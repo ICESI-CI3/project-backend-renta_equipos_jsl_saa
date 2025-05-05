@@ -1,7 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDTO } from './dto/user.dto';
 import { PaginationDTO } from 'src/common/dto/pagination.dto';
+import { RoleProtected } from 'src/auth/decorators/role-protected.decorator';
+import { AuthGuard } from '@nestjs/passport';
+import { UserRoleGuard } from 'src/auth/guards/user-role.guard';
 
 /**
  * Controller for managing user-related operations.
@@ -17,6 +20,8 @@ export class UsersController {
      * @returns A list of all users.
      */
     @Get('')
+    @UseGuards(AuthGuard(), UserRoleGuard)
+    @RoleProtected('admin','superadmin')
     getAllUsers(@Query() pagination: PaginationDTO) {
         return this.usersService.getAllUsers(pagination);
     }
@@ -27,6 +32,7 @@ export class UsersController {
      * @returns The user with the specified ID.
      */
     @Get(':id')
+    @UseGuards(AuthGuard())
     getById(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.getUserById(id);
     }
@@ -38,6 +44,7 @@ export class UsersController {
      * @returns The updated user information.
      */
     @Patch(':id')
+    @UseGuards(AuthGuard())
     update(@Param('id', ParseUUIDPipe) id: string, @Body() user: UserDTO) {
         return this.usersService.updateUser(id, user);
     }
@@ -48,6 +55,7 @@ export class UsersController {
      * @returns A confirmation of the deletion.
      */
     @Delete(':id')
+    @UseGuards(AuthGuard())
     delete(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.deleteUser(id);
     }
