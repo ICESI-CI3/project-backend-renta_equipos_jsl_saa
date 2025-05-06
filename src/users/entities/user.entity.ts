@@ -21,6 +21,6 @@ export class User {
     @Column('text')
     address: string;
 
-    @Column('text')
+    @Column('text', {default: 'user'})
     role: string;
 }

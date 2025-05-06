@@ -3,8 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserDTO } from './dto/user.dto';
-import bcrypt from 'bcrypt';
-import { NotFoundError } from 'rxjs';
+import * as bcrypt from 'bcrypt';
 import { PaginationDTO } from 'src/common/dto/pagination.dto';
 
 /**
@@ -92,7 +91,7 @@ export class UsersService {
     async getUserByEmail(email: string): Promise<User> {
         const user = await this.userRepository.findOne({ 
             where: { email },
-            select: [ 'email', 'password' ] 
+            select: [ 'id','email', 'password','role' ] 
         });
         if (!user) {
             throw new NotFoundException('El usuario no existe');
