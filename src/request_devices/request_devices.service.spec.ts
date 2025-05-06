@@ -54,7 +54,7 @@ describe('RequestDevicesService', () => {
       ];
       const request = { id: 'request-id' };
 
-      jest.spyOn(deviceRepository, 'find').mockResolvedValue(availableDevices as Device[]);
+      jest.spyOn(deviceRepository, 'find').mockResolvedValue(availableDevices as unknown as Device[]);
       jest.spyOn(requestRepository, 'findOne').mockResolvedValue(request as Request);
       jest.spyOn(requestDeviceRepository, 'create').mockImplementation((dto) => dto as RequestDevice);
       jest.spyOn(requestDeviceRepository, 'save').mockImplementation(async (entity) => entity as RequestDevice);

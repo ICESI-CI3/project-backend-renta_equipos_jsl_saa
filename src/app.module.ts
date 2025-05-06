@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 
 import { UsersModule } from './users/users.module';
 import { DevicesModule } from './devices/devices.module';
+import { RequestsModule } from './requests/requests.module';
+import { RequestDevicesModule } from './request_devices/request_devices.module';
+import { ContractsModule } from './contract/contracts.module';
+import { ContractDevicesModule } from './contract_devices/contract_devices.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,6 +29,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
     UsersModule, 
     DevicesModule, 
+    RequestsModule,
+    RequestDevicesModule,
+    ContractsModule,
+    ContractDevicesModule,
     AuthModule],
   controllers: [AppController],
   providers: [AppService],
