@@ -133,7 +133,7 @@ describe('RequestDevicesService', () => {
         jest.spyOn(requestDeviceRepository, 'findOne').mockResolvedValue(null);
         jest.spyOn(requestDeviceRepository, 'update').mockResolvedValue({ affected: 0 } as any); // Mock explícito para update
       
-        await expect(service.updateRequestDevice(id, requestDeviceDto)).rejects.toThrow('La solicitud no existe');
+        await expect(service.updateRequestDevice(id, requestDeviceDto)).rejects.toThrow('La asociación solicitud-dispositivo no existe');
       
         expect(requestDeviceRepository.findOne).toHaveBeenCalledWith({ where: { id } });
         expect(requestDeviceRepository.update).not.toHaveBeenCalled(); // Ahora update es un mock
@@ -159,7 +159,7 @@ describe('RequestDevicesService', () => {
         jest.spyOn(requestDeviceRepository, 'findOne').mockResolvedValue(null);
         jest.spyOn(requestDeviceRepository, 'delete').mockResolvedValue({ affected: 0 } as any); // Mock explícito para delete
       
-        await expect(service.deleteRequestDevice('non-existent-id')).rejects.toThrow('La solicitud no existe');
+        await expect(service.deleteRequestDevice('non-existent-id')).rejects.toThrow('La asociación solicitud-dispositivo no existe');
       
         expect(requestDeviceRepository.findOne).toHaveBeenCalledWith({ where: { id: 'non-existent-id' } });
         expect(requestDeviceRepository.delete).not.toHaveBeenCalled(); // Ahora delete es un mock
@@ -180,7 +180,7 @@ describe('RequestDevicesService', () => {
     it('should throw an error if the request device does not exist', async () => {
       jest.spyOn(requestDeviceRepository, 'findOne').mockResolvedValue(null);
 
-      await expect(service.getRequestDeviceById('non-existent-id')).rejects.toThrow('La solicitud no existe');
+      await expect(service.getRequestDeviceById('non-existent-id')).rejects.toThrow('La asociación solicitud-dispositivo no existe');
     });
   });
 

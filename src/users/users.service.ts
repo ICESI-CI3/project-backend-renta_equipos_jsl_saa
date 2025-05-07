@@ -5,6 +5,11 @@ import { Repository } from 'typeorm';
 import { UserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { PaginationDTO } from 'src/common/dto/pagination.dto';
+import { RequestDevice } from 'src/request_devices/entities/request_device.entity';
+import { Request } from 'src/requests/entities/request.entity';
+import { Contract } from 'src/contract/entities/contract.entity';
+import { ContractDevice } from 'src/contract_devices/entities/contract_device.entity';
+import { Device } from 'src/devices/entities/device.entity';
 
 /**
  * Service for managing user-related operations.
@@ -17,6 +22,11 @@ export class UsersService {
 
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Request) private readonly requestRepository: Repository<Request>,
+        @InjectRepository(RequestDevice) private readonly request_deviceRepository: Repository<RequestDevice>,
+        @InjectRepository(Contract) private readonly contractRepository: Repository<Contract>,
+        @InjectRepository(ContractDevice) private readonly contract_deviceRepository: Repository<ContractDevice>,
+        @InjectRepository(Device) private readonly deviceRepository: Repository<Device>,
     ) {}
 
     /**
@@ -133,6 +143,64 @@ export class UsersService {
         if (result.affected === 0) {
             throw new NotFoundException('El usuario no existe');
         }
+    }
+
+    async acceptRequest(idRequest: string): Promise<void> {
+        const result = await this.requestRepository.findOne({ where: { id: idRequest } });
+        if (!result) {
+            throw new NotFoundException('La solicitud no existe');
+        }
+        this.requestRepository.update(idRequest, { status: 'accepted' });
+
+        const user = await this.userRepository.findOne({ where: { email: result.user_email } });
+        if (!user) {
+            throw new NotFoundException('El usuario no existe');
+        }
+        
+
+        const newContract = this.contractRepository.create({
+            user_email: user.email,
+            request_id: result.id,
+            date_Start: result.date_Request,
+            date_Finish: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+            status: 'active',
+            client_signature: ""
+        });
+
+        const saveContract = await this.contractRepository.save(newContract);
+
+        const requestDevices = await this.request_deviceRepository.find({ where: { request_id: result.id } });
+
+        if (requestDevices && requestDevices.length > 0) {
+            for (const requestDevice of requestDevices) {
+                await this.contract_deviceRepository.save({
+                    contract_id: saveContract.id,
+                    device_id: requestDevice.device_id,
+                    deviceName: requestDevice.deviceName,
+                    delivey_status: 'pending'
+                });
+
+                await this.deviceRepository.update(requestDevice.device_id, { status: 'rentado' });
+            }
+        }
+        
+
+    }
+
+    async rejectRequest(idRequest: string): Promise<void> {
+        const result = await this.requestRepository.findOne({ where: { id: idRequest } });
+        if (!result) {
+            throw new NotFoundException('La solicitud no existe');
+        }
+        this.requestRepository.update(idRequest, { status: 'rejected' });
+        const requestDevices = await this.request_deviceRepository.find({ where: { request_id: result.id } });
+        if (requestDevices && requestDevices.length > 0) {
+            for (const requestDevice of requestDevices) {
+                await this.request_deviceRepository.delete(requestDevice.id);
+            }
+        }
+
+        await this.requestRepository.delete(idRequest);
     }
 
 

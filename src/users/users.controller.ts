@@ -5,6 +5,8 @@ import { PaginationDTO } from 'src/common/dto/pagination.dto';
 import { RoleProtected } from 'src/auth/decorators/role-protected.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { UserRoleGuard } from 'src/auth/guards/user-role.guard';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-role';
 
 /**
  * Controller for managing user-related operations.
@@ -60,4 +62,15 @@ export class UsersController {
         return this.usersService.deleteUser(id);
     }
 
+    @Patch('accept/:idRequest')
+    @Auth(ValidRoles.admin, ValidRoles.superuser)
+    acceptsRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
+        return this.usersService.acceptRequest(idRequest);
+    }
+
+    @Patch('reject/:idRequest')
+    @Auth(ValidRoles.admin, ValidRoles.superuser)
+    rejectRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
+        return this.usersService.rejectRequest(idRequest);
+    }
 }
