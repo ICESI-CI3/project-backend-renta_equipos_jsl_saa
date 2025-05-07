@@ -2,27 +2,27 @@ import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from
 import { DevicesService } from './devices.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 
-@Controller('devices')
+@Controller('api/v1/devices')
 export class DevicesController {
 
     constructor(private readonly devicesService: DevicesService) {}
 
-    @Get('api/v1/')
+    @Get('')
     getAllDevices() {
         return this.devicesService.getAllDevices();
     }
 
-    @Get('api/v1/:id')
+    @Get(':id')
     getById(@Param('id', ParseUUIDPipe) id: string) {
         return this.devicesService.getDeviceById(id);
     }
 
-    @Patch('api/v1/:id')
+    @Patch(':id')
     update(@Param('id', ParseUUIDPipe) id: string, @Body() device: CreateDeviceDto) {
         return this.devicesService.updateDevice(id, device);
     }
 
-    @Delete('api/v1/:id')
+    @Delete(':id')
     delete(@Param('id', ParseUUIDPipe) id: string) {
         return this.devicesService.deleteDevice(id);
     }
@@ -32,7 +32,7 @@ export class DevicesController {
     return this.devicesService.createDevice(device, stock);
     }
 
-    @Get('api/v1/stock/:name')
+    @Get('stock/:name')
     getStock(@Param('name') name: string) {
         return this.devicesService.getStock(name);
     }

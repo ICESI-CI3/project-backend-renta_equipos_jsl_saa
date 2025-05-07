@@ -12,11 +12,11 @@ import {
   import { ContractsService } from './contracts.service';
   import { Contract } from './entities/contract.entity';
   
-  @Controller('contracts')
+  @Controller('api/v1/contracts')
   export class ContractsController {
     constructor(private readonly contractsService: ContractsService) {}
   
-    @Post("api/v1/")
+    @Post("")
     async createContract(@Body() contract: Contract): Promise<Contract> {
       try {
         return await this.contractsService.createContract(contract);
@@ -25,12 +25,12 @@ import {
       }
     }
   
-    @Get("api/v1/")
+    @Get("")
     async getAllContracts(): Promise<Contract[]> {
       return this.contractsService.getAllContracts();
     }
   
-    @Get("api/v1/:id")
+    @Get(":id")
     async getContractById(@Param('id') id: string): Promise<Contract> {
       try {
         return await this.contractsService.getContractById(id);
@@ -39,7 +39,7 @@ import {
       }
     }
   
-    @Put("api/v1/:id")
+    @Put(":id")
     async updateContract(
       @Param('id') id: string,
       @Body() contract: Contract
@@ -51,7 +51,7 @@ import {
       }
     }
   
-    @Delete("api/v1/:id")
+    @Delete(":id")
     async deleteContract(@Param('id') id: string): Promise<{ message: string }> {
       try {
         await this.contractsService.deleteContract(id);
@@ -61,7 +61,7 @@ import {
       }
     }
   
-    @Get('api/v1/user/:email')
+    @Get(':email')
     async getContractsByUserEmail(
       @Param('email') email: string
     ): Promise<Contract[]> {
@@ -72,7 +72,7 @@ import {
       }
     }
   
-    @Get('api/v1/status/:status')
+    @Get(':status')
     async getContractsByStatus(
       @Param('status') status: string
     ): Promise<Contract[]> {
