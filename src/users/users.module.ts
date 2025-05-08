@@ -3,11 +3,11 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Request } from 'src/requests/entities/request.entity';
-import { RequestDevice } from 'src/request_devices/entities/request_device.entity';
-import { Contract } from 'src/contract/entities/contract.entity';
-import { ContractDevice } from 'src/contract_devices/entities/contract_device.entity';
-import { Device } from 'src/devices/entities/device.entity';
+import { Request } from '../requests/entities/request.entity';
+import { RequestDevice } from '../request_devices/entities/request_device.entity';
+import { Contract } from '../contract/entities/contract.entity';
+import { ContractDevice } from '../contract_devices/entities/contract_device.entity';
+import { Device } from '../devices/entities/device.entity';
 
 @Module({
   controllers: [UsersController],

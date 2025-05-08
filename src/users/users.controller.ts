@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDTO } from './dto/user.dto';
-import { PaginationDTO } from 'src/common/dto/pagination.dto';
-import { RoleProtected } from 'src/auth/decorators/role-protected.decorator';
+import { PaginationDTO } from '../common/dto/pagination.dto';
+import { RoleProtected } from '../auth/decorators/role-protected.decorator';
 import { AuthGuard } from '@nestjs/passport';
-import { UserRoleGuard } from 'src/auth/guards/user-role.guard';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { ValidRoles } from 'src/auth/interfaces/valid-role';
+import { UserRoleGuard } from '../auth/guards/user-role.guard';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { ValidRoles } from '../auth/interfaces/valid-role';
 
 /**
  * Controller for managing user-related operations.
@@ -22,8 +22,6 @@ export class UsersController {
      * @returns A list of all users.
      */
     @Get('')
-    @UseGuards(AuthGuard(), UserRoleGuard)
-    @RoleProtected('admin','superadmin')
     getAllUsers(@Query() pagination: PaginationDTO) {
         return this.usersService.getAllUsers(pagination);
     }

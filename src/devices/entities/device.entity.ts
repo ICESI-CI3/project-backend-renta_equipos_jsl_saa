@@ -29,14 +29,7 @@ export class Device {
     @Column('text')
     image: string;
 
-    @Column('text', {unique: true})
-    slug: string;
+  
     
-    @BeforeInsert()
-    checkSlug() : void{
-        if (!this.slug) {
-            this.slug = this.name.toLowerCase().replaceAll(' ', '_').replaceAll('\'', '');
-        }
-    }
    
 }

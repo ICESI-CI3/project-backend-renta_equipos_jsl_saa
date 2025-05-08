@@ -13,23 +13,23 @@ export class DevicesService {
     ) {}
 
 
-    async createDevice(device: CreateDeviceDto, stock: number): Promise<Device[]> {
-        const existingDevice = await this.deviceRepository.findOne({ where: { name: device.name } });
-    
+    async createDevice(device: CreateDeviceDto, stock: number): Promise<string> {
+        const existingDevice = await this.deviceRepository.findOne({
+          where: { name: device.name },
+        });
+      
         if (existingDevice) {
-            throw new Error('El dispositivo ya existe');
+          throw new Error('El dispositivo ya existe');
         }
-    
-        const createdDevices: Device[] = [];
-    
+      
         for (let i = 0; i < stock; i++) {
-            const newDevice = this.deviceRepository.create({ ...device });
-            const savedDevice = await this.deviceRepository.save(newDevice);
-            createdDevices.push(savedDevice);
+          const newDevice = this.deviceRepository.create(device);
+          await this.deviceRepository.save(newDevice);
         }
-    
-        return createdDevices;
-    }
+      
+        return 'Device created successfully';
+      }
+      
     
     
     

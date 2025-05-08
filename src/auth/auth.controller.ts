@@ -1,13 +1,13 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/singIn.dto';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { Auth } from './decorators/auth.decorator';
 import { ValidRoles } from './interfaces/valid-role';
-import { PaginationDTO } from 'src/common/dto/pagination.dto';
-import { UserDTO } from 'src/users/dto/user.dto';
+import { PaginationDTO } from '../common/dto/pagination.dto';
+import { UserDTO } from '../users/dto/user.dto';
 
-@Controller('auth')
+@Controller('api/v1/auth')
 export class AuthController {
 
   constructor(private readonly authService: AuthService,

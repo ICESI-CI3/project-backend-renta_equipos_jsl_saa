@@ -4,12 +4,12 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { PaginationDTO } from 'src/common/dto/pagination.dto';
-import { RequestDevice } from 'src/request_devices/entities/request_device.entity';
-import { Request } from 'src/requests/entities/request.entity';
-import { Contract } from 'src/contract/entities/contract.entity';
-import { ContractDevice } from 'src/contract_devices/entities/contract_device.entity';
-import { Device } from 'src/devices/entities/device.entity';
+import { PaginationDTO } from '../common/dto/pagination.dto';
+import { RequestDevice } from '../request_devices/entities/request_device.entity';
+import { Request } from '../requests/entities/request.entity';
+import { Contract } from '../contract/entities/contract.entity';
+import { ContractDevice } from '../contract_devices/entities/contract_device.entity';
+import { Device } from '../devices/entities/device.entity';
 
 /**
  * Service for managing user-related operations.
