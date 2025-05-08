@@ -17,13 +17,13 @@ import {
   export class ContractDevicesController {
     constructor(private readonly service: ContractDevicesService) {}
   
-    @Post("")
-    async createContractDevice(
-      @Body() dto: CreateContractDeviceDto,
-      @Query("quantity") quantity: number
-    ): Promise<ContractDevice[]> {
-      return this.service.createContractDevice(dto, quantity);
+    @Post(":quantity")
+    createContractDevice(
+    @Param('quantity') quantity: number,
+    @Body() dto: CreateContractDeviceDto,): Promise<string> {
+    return this.service.createContractDevice(dto, Number(quantity));
     }
+
   
     @Get("")
     async getAllContractDevices(): Promise<ContractDevice[]> {

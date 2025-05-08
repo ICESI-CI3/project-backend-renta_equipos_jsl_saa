@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, BadRequestException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ContractDevice } from "./entities/contract_device.entity";
@@ -15,42 +15,44 @@ export class ContractDevicesService {
     @InjectRepository(Contract) private readonly contractRepository: Repository<Contract>
   ) {}
 
-  async createContractDevice(contractDeviceDto: CreateContractDeviceDto, quantity: number): Promise<ContractDevice[]> {
+  async createContractDevice(
+    contractDeviceDto: CreateContractDeviceDto,
+    quantity: number
+  ): Promise<string> {
+  
     const availableDevices = await this.deviceRepository.find({
       where: { name: contractDeviceDto.deviceName, status: "Disponible" },
     });
-
+  
     if (availableDevices.length < quantity) {
-      throw new Error(
+      throw new BadRequestException(
         `No hay suficientes dispositivos disponibles con el nombre "${contractDeviceDto.deviceName}". Se encontraron ${availableDevices.length}, pero se necesitan ${quantity}.`
       );
     }
-
+  
     const contract = await this.contractRepository.findOne({ where: { id: contractDeviceDto.contract_id } });
     if (!contract) {
-      throw new Error("El contrato especificado no existe");
+      throw new BadRequestException("El contrato especificado no existe");
     }
-
-    const createdContractDevices: ContractDevice[] = [];
-
+  
     for (let i = 0; i < quantity; i++) {
       const device = availableDevices[i];
-
+  
       const newContractDevice = this.contractDeviceRepository.create({
         contract_id: contract.id,
         device_id: device.id,
         deviceName: device.name,
       });
-
-      const saved = await this.contractDeviceRepository.save(newContractDevice);
-      createdContractDevices.push(saved);
-
+  
+      await this.contractDeviceRepository.save(newContractDevice);
+  
       // Cambiar estado del dispositivo
-      device.status = "Asignado";
-      await this.deviceRepository.save(device);
+      await this.deviceRepository.update(device.id, {
+        status: "Asignado"
+      });
     }
-
-    return createdContractDevices;
+  
+    return "Dispositivos asignados correctamente al contrato";
   }
 
   async getAllContractDevices(): Promise<ContractDevice[]> {
