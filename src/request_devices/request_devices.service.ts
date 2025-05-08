@@ -37,66 +37,29 @@ export class RequestDevicesService {
      * - Updates device status to 'Pedido' (Requested) for each associated device
      * - Creates one RequestDevice record per device
      */
-    async createRequestDevice(requestDevice: CreateRequestDeviceDto, quantity: number): Promise<RequestDevice[]> {
-        try {
-            // Verify available devices
-            const availableDevices = await this.deviceRepository.find({ 
-                where: { 
-                    name: requestDevice.deviceName, 
-                    status: 'Disponible' 
-                } 
-            });
-            
-            if (availableDevices.length < quantity) {
-                throw new BadRequestException(
-                    `No hay suficientes dispositivos disponibles con el nombre "${requestDevice.deviceName}". ` +
-                    `Se encontraron ${availableDevices.length}, pero se necesitan ${quantity}.`
-                );
-            }
+    async createRequestDevice(requestDevice: CreateRequestDeviceDto, quantity: number): Promise<String> {
         
-            // Verify request exists
-            const requestExists = await this.requestRepository.findOne({ 
-                where: { id: requestDevice.request_id } 
-            });
-            
-            if (!requestExists) {
-                throw new BadRequestException(
-                    "La solicitud con el request_id especificado no existe"
-                );
-            }
-        
-            // Process each device
-            const createdRequestDevices: RequestDevice[] = [];
-            
-            for (let i = 0; i < quantity; i++) {
-                const device = availableDevices[i];
-            
-                // Create request-device association
-                const newRequestDevice = this.requestDeviceRepository.create({
-                    deviceName: device.name,
-                    request_id: requestExists.id,
-                    device_id: device.id // Added explicit device reference
-                });
-                
-                const savedRequestDevice = await this.requestDeviceRepository.save(newRequestDevice);
-                createdRequestDevices.push(savedRequestDevice);
-            
-                // Update device status
-                device.status = 'Pedido';
-                await this.deviceRepository.save(device);
-            }
-            
-            return createdRequestDevices;
-            
-        } catch (error) {
-            if (error instanceof BadRequestException) {
-                throw error;
-            }
-            throw new InternalServerErrorException(
-                'Error al crear la asociación solicitud-dispositivo', 
-                error.message
-            );
+
+        const devicesAvailable = await this.deviceRepository.find({
+            where: { name: requestDevice.deviceName, status: 'Disponible' },
+        });
+        if (devicesAvailable.length < quantity) {
+            throw new BadRequestException("No hay suficientes dispositivos disponibles");
         }
+
+        for (let i = 0; i < quantity; i++) {
+            const device = devicesAvailable[i];
+            const newRequestDevice = this.requestDeviceRepository.create({
+                request_id: requestDevice.request_id,
+                device_id: device.id,
+                deviceName: requestDevice.deviceName  // Assuming 'Pedido' means requested
+            });
+            await this.requestDeviceRepository.save(newRequestDevice);
+        }
+
+        return "Dispositivos solicitados correctamente";
+
+            // Assuming 'Disponible' means available
     }
 
     /**

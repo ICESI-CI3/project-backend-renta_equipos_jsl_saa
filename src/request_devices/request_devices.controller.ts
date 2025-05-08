@@ -7,12 +7,12 @@ import { RequestDevice } from './entities/request_device.entity';
 export class RequestDevicesController {
   constructor(private readonly requestDevicesService: RequestDevicesService) {}
 
-  @Post("")
-  async createRequestDevice(
+  @Post(":quantity")
+  createRequestDevice(
+    @Param('quantity') quantity: number,
     @Body() requestDeviceDto: CreateRequestDeviceDto,
-    @Query('quantity') quantity: number,
-  ): Promise<RequestDevice[]> {
-    return this.requestDevicesService.createRequestDevice(requestDeviceDto, quantity);
+  ): Promise<String> {
+    return this.requestDevicesService.createRequestDevice(requestDeviceDto, Number(quantity));
   }
 
   @Get("")
