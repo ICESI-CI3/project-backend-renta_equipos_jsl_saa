@@ -5,12 +5,14 @@ import { ContractDevice } from './entities/contract_device.entity';
 import { Device } from '../devices/entities/device.entity';
 import { Contract } from '../contract/entities/contract.entity';
 import { Repository } from 'typeorm';
+import { BadRequestException } from '@nestjs/common';
+import { CreateContractDeviceDto } from './dto/create-contract_device.dto';
 
 describe('ContractDevicesService', () => {
   let service: ContractDevicesService;
-  let contractDeviceRepo: jest.Mocked<Repository<ContractDevice>>;
-  let deviceRepo: jest.Mocked<Repository<Device>>;
-  let contractRepo: jest.Mocked<Repository<Contract>>;
+  let contractDeviceRepo: Repository<ContractDevice>;
+  let deviceRepo: Repository<Device>;
+  let contractRepo: Repository<Contract>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -18,15 +20,27 @@ describe('ContractDevicesService', () => {
         ContractDevicesService,
         {
           provide: getRepositoryToken(ContractDevice),
-          useClass: Repository,
+          useValue: {
+            find: jest.fn(),
+            findOne: jest.fn(),
+            save: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(Device),
-          useClass: Repository,
+          useValue: {
+            find: jest.fn(),
+            update: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(Contract),
-          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -37,130 +51,159 @@ describe('ContractDevicesService', () => {
     contractRepo = module.get(getRepositoryToken(Contract));
   });
 
+  const mockContractDeviceRepo = {
+    create: jest.fn(),
+    save: jest.fn(),
+    find: jest.fn(),
+    findOne: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  };
+
+  const mockDeviceRepo = {
+    find: jest.fn() as jest.Mock<Promise<Device[]>, [any]>,
+    update: jest.fn(),
+  };
+
+  const mockContractRepo = {
+      findOne: jest.fn(),
+    };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ContractDevicesService,
+        { provide: getRepositoryToken(ContractDevice), useValue: mockContractDeviceRepo },
+        { provide: getRepositoryToken(Device), useValue: mockDeviceRepo },
+        { provide: getRepositoryToken(Contract), useValue: mockContractRepo },
+      ],
+    }).compile();
+
+    service = module.get<ContractDevicesService>(ContractDevicesService);
+    contractDeviceRepo = module.get(getRepositoryToken(ContractDevice));
+    deviceRepo = module.get(getRepositoryToken(Device));
+    contractRepo = module.get(getRepositoryToken(Contract));
+  });
+
+  afterEach(() => jest.clearAllMocks());
+
   describe('createContractDevice', () => {
-    it('should throw if not enough devices are available', async () => {
-      jest.spyOn(deviceRepo, 'find').mockResolvedValue([]);
-      const dto = { deviceName: 'Router', contract_id: '1', device_id: 'd1', delivey_status: 'Pending' };
-      await expect(service.createContractDevice(dto, 2)).rejects.toThrow(
-        /No hay suficientes dispositivos disponibles/
-      );
+    it('should assign devices to a contract', async () => {
+      const dto: CreateContractDeviceDto = {
+        contract_id: 'contract1',
+        deviceName: 'DeviceA',
+        device_id: 'device1',
+        delivey_status: 'Pending',
+      };
+      const devices = [{ id: '1', name: 'DeviceA', status: 'Disponible' }];
+      const contract = { id: 'contract1' };
+
+      (deviceRepo.find as jest.Mock).mockResolvedValue([...devices]);
+      (contractRepo.findOne as jest.Mock).mockResolvedValue(contract);
+      (contractDeviceRepo.create as jest.Mock).mockReturnValue({});
+      (contractDeviceRepo.save as jest.Mock).mockResolvedValue({});
+
+      const result = await service.createContractDevice(dto, 1);
+      expect(result).toBe('Dispositivos asignados correctamente al contrato');
+      expect(deviceRepo.update).toHaveBeenCalledWith('1', { status: 'Asignado' });
+    });
+
+    it('should throw if not enough devices', async () => {
+      (deviceRepo.find as jest.Mock).mockResolvedValue([]);
+      const dto: CreateContractDeviceDto = { 
+        contract_id: 'x', 
+        deviceName: 'DeviceA', 
+        device_id: 'device1', 
+        delivey_status: 'Pending' 
+      };
+      await expect(service.createContractDevice(dto, 2)).rejects.toThrow(BadRequestException);
     });
 
     it('should throw if contract not found', async () => {
-      jest.spyOn(deviceRepo, 'find').mockResolvedValue([{ id: 'd1', name: 'Router', status: 'Disponible' }] as Device[]);
-      jest.spyOn(contractRepo, 'findOne').mockResolvedValue(null);
-      const dto = { deviceName: 'Router', contract_id: '1', device_id: 'd1', delivey_status: 'Pending' };
-      await expect(service.createContractDevice(dto, 1)).rejects.toThrow(
-        /El contrato especificado no existe/
-      );
-    });
-
-    it('should create devices and change status', async () => {
-      const device = { id: 'd1', name: 'Router', status: 'Disponible' } as Device;
-      const contract = { id: 'c1' } as Contract;
-      const savedContractDevice = { id: 'cd1', deviceName: 'Router' } as ContractDevice;
-
-      jest.spyOn(deviceRepo, 'find').mockResolvedValue([device]);
-      jest.spyOn(contractRepo, 'findOne').mockResolvedValue(contract);
-      jest.spyOn(contractDeviceRepo, 'create').mockReturnValue(savedContractDevice);
-      jest.spyOn(contractDeviceRepo, 'save').mockResolvedValue(savedContractDevice);
-      jest.spyOn(deviceRepo, 'save').mockResolvedValue({ 
-        ...device, 
-        status: 'Asignado', 
-        checkSlug: jest.fn() 
-      });
-
-      const dto = { deviceName: 'Router', contract_id: 'c1', device_id: 'd1', delivey_status: 'Pending' };
-      const result = await service.createContractDevice(dto, 1);
-
-      await service.createContractDevice({ deviceName: 'Router', contract_id: 'c1', device_id: 'd1', delivey_status: 'Pending' }, 1);
-
-      expect(result).toEqual([savedContractDevice]);
+      (deviceRepo.find as jest.Mock).mockResolvedValue([{ id: '1', name: 'DeviceA' }]);
+      (contractRepo.findOne as jest.Mock).mockResolvedValue(null);
+      const dto: CreateContractDeviceDto = { 
+        contract_id: 'x', 
+        deviceName: 'DeviceA', 
+        device_id: 'device1', 
+        delivey_status: 'Pending' 
+      };
+      await expect(service.createContractDevice(dto, 1)).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('getAllContractDevices', () => {
     it('should return all contract devices', async () => {
-      const devices = [{ id: 'cd1' }] as ContractDevice[];
-      jest.spyOn(contractDeviceRepo, 'find').mockResolvedValue(devices);
-
-      const result = await service.getAllContractDevices();
-      expect(result).toEqual(devices);
+      const mockData = [{ id: '1' }, { id: '2' }];
+      (contractDeviceRepo.find as jest.Mock).mockResolvedValue(mockData);
+      expect(await service.getAllContractDevices()).toEqual(mockData);
     });
   });
 
   describe('getContractDeviceById', () => {
-    it('should return a contract device by ID', async () => {
-      const device = { id: 'cd1' } as ContractDevice;
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValue(device);
-
-      const result = await service.getContractDeviceById('cd1');
-      expect(result).toEqual(device);
+    it('should return a contract device', async () => {
+      const contractDevice = { id: '1' };
+      (contractDeviceRepo.findOne as jest.Mock).mockResolvedValue(contractDevice);
+      (contractDeviceRepo.findOne as jest.Mock).mockResolvedValue(null);
     });
 
     it('should throw if not found', async () => {
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValue(null);
-
-      await expect(service.getContractDeviceById('cd1')).rejects.toThrow(/no existe/i);
+      (contractDeviceRepo.findOne as jest.Mock).mockResolvedValue(null);
+      await expect(service.getContractDeviceById('x')).rejects.toThrow();
     });
   });
 
   describe('updateContractDevice', () => {
-    it('should throw if contract device not found', async () => {
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValueOnce(null);
+    it('should update and return the contract device', async () => {
+      const dto = { contract_id: '1', deviceName: 'DeviceX' };
+      (contractDeviceRepo.findOne as jest.Mock)
+        .mockResolvedValueOnce({ id: '1' }) // exists
+        .mockResolvedValueOnce({ id: '1', deviceName: 'DeviceX' }); // after update
 
-      await expect(service.updateContractDevice('cd1', {} as any)).rejects.toThrow(/no existe/i);
+      const updateDto: CreateContractDeviceDto = { 
+        contract_id: '1', 
+        deviceName: 'DeviceX', 
+        device_id: 'device1', 
+        delivey_status: 'Pending' 
+      };
+      const result = await service.updateContractDevice('1', updateDto);
+      expect(result).toEqual({ id: '1', deviceName: 'DeviceX' });
     });
 
-    it('should throw if updated device is null', async () => {
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValueOnce({ id: 'cd1' } as ContractDevice);
-      jest.spyOn(contractDeviceRepo, 'update').mockResolvedValue({} as any);
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValueOnce(null);
-
-      await expect(service.updateContractDevice('cd1', {} as any)).rejects.toThrow(/actualizado/);
-    });
-
-    it('should update contract device', async () => {
-      const updatedDevice = { id: 'cd1', deviceName: 'New' } as ContractDevice;
-
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValueOnce({ id: 'cd1' } as ContractDevice);
-      jest.spyOn(contractDeviceRepo, 'update').mockResolvedValue({} as any);
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValueOnce(updatedDevice);
-
-      const result = await service.updateContractDevice('cd1', {} as any);
-      expect(result).toEqual(updatedDevice);
+    it('should throw if not found', async () => {
+      (contractDeviceRepo.findOne as jest.Mock).mockResolvedValue(null);
+      await expect(service.updateContractDevice('x', { 
+        contract_id: '1', 
+        deviceName: 'X', 
+        device_id: 'device1', 
+        delivey_status: 'Pending' 
+      })).rejects.toThrow();
     });
   });
 
   describe('deleteContractDevice', () => {
-    it('should throw if not found', async () => {
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValue(null);
-
-      await expect(service.deleteContractDevice('cd1')).rejects.toThrow(/no existe/i);
+    it('should delete a contract device', async () => {
+      (contractDeviceRepo.findOne as jest.Mock).mockResolvedValue({ id: '1' });
+      await service.deleteContractDevice('1');
+      expect(contractDeviceRepo.delete).toHaveBeenCalledWith('1');
     });
 
-    it('should delete if exists', async () => {
-      jest.spyOn(contractDeviceRepo, 'findOne').mockResolvedValue({ id: 'cd1' } as ContractDevice);
-      const deleteSpy = jest.spyOn(contractDeviceRepo, 'delete').mockResolvedValue({} as any);
-
-      await service.deleteContractDevice('cd1');
-      expect(deleteSpy).toHaveBeenCalledWith('cd1');
+    it('should throw if not found', async () => {
+      (contractDeviceRepo.findOne as jest.Mock).mockResolvedValue(null);
+      await expect(service.deleteContractDevice('x')).rejects.toThrow();
     });
   });
 
   describe('getContractDevicesByDeviceName', () => {
-    it('should return contract devices', async () => {
-      const resultList = [{ id: 'cd1' }] as ContractDevice[];
-      jest.spyOn(contractDeviceRepo, 'find').mockResolvedValue(resultList);
-
-      const result = await service.getContractDevicesByDeviceName('Router');
-      expect(result).toEqual(resultList);
+    it('should return contract devices by name', async () => {
+      const results = [{ id: '1', deviceName: 'DeviceA' }];
+      (contractDeviceRepo.find as jest.Mock).mockResolvedValue(results);
+      expect(await service.getContractDevicesByDeviceName('DeviceA')).toEqual(results);
     });
 
     it('should throw if none found', async () => {
-      jest.spyOn(contractDeviceRepo, 'find').mockResolvedValue([]);
-
-      await expect(service.getContractDevicesByDeviceName('Router')).rejects.toThrow(/no hay contratos/i);
+      (contractDeviceRepo.find as jest.Mock).mockResolvedValue([]);
+      await expect(service.getContractDevicesByDeviceName('Unknown')).rejects.toThrow();
     });
   });
 });

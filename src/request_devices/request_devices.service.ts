@@ -38,28 +38,28 @@ export class RequestDevicesService {
      * - Creates one RequestDevice record per device
      */
     async createRequestDevice(requestDevice: CreateRequestDeviceDto, quantity: number): Promise<String> {
-        
-
         const devicesAvailable = await this.deviceRepository.find({
             where: { name: requestDevice.deviceName, status: 'Disponible' },
         });
+    
         if (devicesAvailable.length < quantity) {
-            throw new BadRequestException("No hay suficientes dispositivos disponibles");
+            throw new BadRequestException(
+                `No hay suficientes dispositivos disponibles con el nombre "${requestDevice.deviceName}". ` +
+                `Se encontraron ${devicesAvailable.length}, pero se necesitan ${quantity}.`
+            );
         }
-
+    
         for (let i = 0; i < quantity; i++) {
             const device = devicesAvailable[i];
             const newRequestDevice = this.requestDeviceRepository.create({
                 request_id: requestDevice.request_id,
                 device_id: device.id,
-                deviceName: requestDevice.deviceName  // Assuming 'Pedido' means requested
+                deviceName: requestDevice.deviceName,
             });
             await this.requestDeviceRepository.save(newRequestDevice);
         }
-
+    
         return "Dispositivos solicitados correctamente";
-
-            // Assuming 'Disponible' means available
     }
 
     /**

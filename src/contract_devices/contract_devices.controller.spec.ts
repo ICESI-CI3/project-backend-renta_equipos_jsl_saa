@@ -6,18 +6,29 @@ import { ContractDevice } from './entities/contract_device.entity';
 
 describe('ContractDevicesController', () => {
   let controller: ContractDevicesController;
-  let service: jest.Mocked<ContractDevicesService>;
+  let service: ContractDevicesService;
+
+  const mockContractDevice: ContractDevice = {
+    id: '1',
+    contract_id: '123',
+    device_id: 'device-123',
+    deviceName: 'DeviceX',
+    delivey_status: 'pending',
+  };
+
+  const mockService = {
+    createContractDevice: jest.fn().mockResolvedValue('Dispositivos asignados correctamente al contrato'),
+    getAllContractDevices: jest.fn().mockResolvedValue([mockContractDevice]),
+    getContractDeviceById: jest.fn().mockResolvedValue(mockContractDevice),
+    updateContractDevice: jest.fn().mockResolvedValue({
+      ...mockContractDevice,
+      deviceName: 'Updated',
+    }),
+    deleteContractDevice: jest.fn().mockResolvedValue(undefined),
+    getContractDevicesByDeviceName: jest.fn().mockResolvedValue([mockContractDevice]),
+  };
 
   beforeEach(async () => {
-    const mockService: Partial<ContractDevicesService> = {
-      createContractDevice: jest.fn(),
-      getAllContractDevices: jest.fn(),
-      getContractDeviceById: jest.fn(),
-      updateContractDevice: jest.fn(),
-      deleteContractDevice: jest.fn(),
-      getContractDevicesByDeviceName: jest.fn(),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ContractDevicesController],
       providers: [
@@ -29,79 +40,57 @@ describe('ContractDevicesController', () => {
     }).compile();
 
     controller = module.get<ContractDevicesController>(ContractDevicesController);
-    service = module.get(ContractDevicesService);
+    service = module.get<ContractDevicesService>(ContractDevicesService);
   });
 
-  describe('createContractDevice', () => {
-    it('should call service.createContractDevice with dto and quantity', async () => {
-      const dto: CreateContractDeviceDto = { deviceName: 'Router', contract_id: 'c1', device_id: 'd1', delivey_status: 'Pending' };
-      const result: ContractDevice[] = [{ id: 'cd1', deviceName: 'Router' } as ContractDevice];
-
-      service.createContractDevice.mockResolvedValue(result);
-
-      const response = await controller.createContractDevice(dto, 1);
-      expect(response).toEqual(result);
-      expect(service.createContractDevice).toHaveBeenCalledWith(dto, 1);
-    });
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
   });
 
-  describe('getAllContractDevices', () => {
-    it('should return all contract devices', async () => {
-      const result: ContractDevice[] = [{ id: 'cd1' } as ContractDevice];
-      service.getAllContractDevices.mockResolvedValue(result);
-
-      const response = await controller.getAllContractDevices();
-      expect(response).toEqual(result);
-    });
+  it('should create contract devices', async () => {
+    const dto: CreateContractDeviceDto = {
+      contract_id: '123',
+      device_id: 'device-123',
+      deviceName: 'DeviceX',
+      delivey_status: 'pending',
+    };
+    const response = await controller.createContractDevice(2, dto);
+    expect(response).toBe('Dispositivos asignados correctamente al contrato');
+    expect(service.createContractDevice).toHaveBeenCalledWith(dto, 2);
   });
 
-  describe('getContractDevicesById', () => {
-    it('should return contract device by ID', async () => {
-      const id = 'uuid';
-      const result = { id } as ContractDevice;
-
-      service.getContractDeviceById.mockResolvedValue(result);
-      const response = await controller.getContractDevicesById(id);
-
-      expect(response).toEqual(result);
-      expect(service.getContractDeviceById).toHaveBeenCalledWith(id);
-    });
+  it('should return all contract devices', async () => {
+    const result = await controller.getAllContractDevices();
+    expect(result).toEqual([mockContractDevice]);
+    expect(service.getAllContractDevices).toHaveBeenCalled();
   });
 
-  describe('updateContractDevices', () => {
-    it('should update contract device', async () => {
-      const id = 'uuid';
-      const dto: CreateContractDeviceDto = { deviceName: 'Switch', contract_id: 'c2', device_id: 'd2', delivey_status: 'Delivered' };
-      const result = { id, ...dto } as ContractDevice;
-
-      service.updateContractDevice.mockResolvedValue(result);
-      const response = await controller.updateContractDevices(id, dto);
-
-      expect(response).toEqual(result);
-      expect(service.updateContractDevice).toHaveBeenCalledWith(id, dto);
-    });
+  it('should return a contract device by ID', async () => {
+    const result = await controller.getContractDevicesById('1');
+    expect(result).toEqual(mockContractDevice);
+    expect(service.getContractDeviceById).toHaveBeenCalledWith('1');
   });
 
-  describe('deleteContractDevice', () => {
-    it('should call delete method with correct ID', async () => {
-      const id = 'uuid';
-      service.deleteContractDevice.mockResolvedValue(undefined);
-
-      await controller.deleteContractDevice(id);
-      expect(service.deleteContractDevice).toHaveBeenCalledWith(id);
-    });
+  it('should update a contract device', async () => {
+    const dto: CreateContractDeviceDto = {
+      contract_id: '123',
+      device_id: 'device-456',
+      deviceName: 'Updated',
+      delivey_status: 'delivered',
+    };
+    const result = await controller.updateContractDevices('1', dto);
+    expect(result.deviceName).toBe('Updated');
+    expect(service.updateContractDevice).toHaveBeenCalledWith('1', dto);
   });
 
-  describe('getContractDevicesByDeviceName', () => {
-    it('should return contract devices filtered by device name', async () => {
-      const name = 'Router';
-      const result: ContractDevice[] = [{ id: 'cd1', deviceName: name } as ContractDevice];
+  it('should delete a contract device', async () => {
+    await controller.deleteContractDevice('1');
+    expect(service.deleteContractDevice).toHaveBeenCalledWith('1');
+  });
 
-      service.getContractDevicesByDeviceName.mockResolvedValue(result);
-      const response = await controller.getContractDevicesByDeviceName(name);
-
-      expect(response).toEqual(result);
-      expect(service.getContractDevicesByDeviceName).toHaveBeenCalledWith(name);
-    });
+  it('should return contract devices by device name', async () => {
+    const result = await controller.getContractDevicesByDeviceName('DeviceX');
+    expect(result).toEqual([mockContractDevice]);
+    expect(service.getContractDevicesByDeviceName).toHaveBeenCalledWith('DeviceX');
   });
 });

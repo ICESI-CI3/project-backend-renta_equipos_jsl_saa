@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserDTO } from './dto/user.dto';
-import { PaginationDTO } from 'src/common/dto/pagination.dto';
+import { PaginationDTO } from '../common/dto/pagination.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { UserRoleGuard } from 'src/auth/guards/user-role.guard';
+import { UserRoleGuard } from '../auth/guards/user-role.guard';
 import { APP_GUARD } from '@nestjs/core';
 
 describe('UsersController', () => {

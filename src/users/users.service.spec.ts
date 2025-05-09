@@ -6,11 +6,11 @@ import { Repository } from 'typeorm';
 import { UserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
-import { Request } from 'src/requests/entities/request.entity';
-import { RequestDevice } from 'src/request_devices/entities/request_device.entity';
-import { Contract } from 'src/contract/entities/contract.entity';
-import { ContractDevice } from 'src/contract_devices/entities/contract_device.entity';
-import { Device } from 'src/devices/entities/device.entity';
+import { Request } from '../requests/entities/request.entity';
+import { RequestDevice } from '../request_devices/entities/request_device.entity';
+import { Contract } from '../contract/entities/contract.entity';
+import { ContractDevice } from '../contract_devices/entities/contract_device.entity';
+import { Device } from '../devices/entities/device.entity';
 
 describe('UsersService', () => {
   let service: UsersService;
