@@ -17,9 +17,6 @@ export class Contract {
     @Column('date')
     date_Finish: Date;
 
-    @Column('float')
-    monthly_Value: number;
-
     @Column('text')
     status: string;
 

@@ -161,8 +161,8 @@ export class UsersService {
         const newContract = this.contractRepository.create({
             user_email: user.email,
             request_id: result.id,
-            date_Start: result.date_Request,
-            date_Finish: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+            date_Start: result.date_Start,
+            date_Finish: result.date_Finish,
             status: 'active',
             client_signature: ""
         });

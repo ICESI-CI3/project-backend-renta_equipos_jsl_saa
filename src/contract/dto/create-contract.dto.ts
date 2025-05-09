@@ -16,8 +16,6 @@ export class CreateContractDto {
     @IsDate()
     readonly date_Finish: Date;
 
-    @IsNumber()
-    readonly monthly_Value: number;
 
     @IsString()
     readonly status: string;

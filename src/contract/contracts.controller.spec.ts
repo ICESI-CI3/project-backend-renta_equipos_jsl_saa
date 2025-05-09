@@ -14,7 +14,6 @@ describe('ContractsController', () => {
     status: 'accepted',
     date_Start: new Date('2023-01-01'),
     date_Finish: new Date('2023-12-31'),
-    monthly_Value: 1000,
     client_signature: 'signature123',
   };
 

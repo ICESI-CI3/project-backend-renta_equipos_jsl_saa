@@ -11,7 +11,8 @@ describe('RequestsController', () => {
   const mockRequest: Request = {
     id: 'uuid-1234',
     user_email: 'test@example.com',
-    date_Request: new Date(),
+    date_Start: new Date(),
+    date_Finish: new Date(),
     status: 'pending',
     admin_comment: 'Test comment',
   };
@@ -52,7 +53,8 @@ describe('RequestsController', () => {
     const dto: CreateRequestDto = {
       id: 'uuid-1234',
       user_email: 'test@example.com',
-      date_Request: new Date(),
+      date_Start: new Date(),
+      date_Finish: new Date(),
       status: 'approved',
       admin_comment: 'Updated',
     };
@@ -71,7 +73,8 @@ describe('RequestsController', () => {
     const dto: CreateRequestDto = {
       id: 'uuid-1234',
       user_email: 'test@example.com',
-      date_Request: new Date(),
+      date_Start: new Date(),
+      date_Finish: new Date(),
       status: 'pending',
       admin_comment: 'New request',
     };

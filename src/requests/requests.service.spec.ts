@@ -9,7 +9,8 @@ import { CreateRequestDto } from './dto/create-request.dto';
 const mockRequest: Request = {
   id: 'uuid-1234',
   user_email: 'test@example.com',
-  date_Request: new Date(),
+  date_Start: new Date(),
+  date_Finish: new Date(),
   status: 'pending',
   admin_comment: 'Initial comment',
 };
@@ -67,7 +68,8 @@ describe('RequestsService', () => {
       const dto: CreateRequestDto = {
         id: 'uuid-1234',
         user_email: 'test@example.com',
-        date_Request: new Date(),
+        date_Start: new Date(),
+        date_Finish: new Date(),
         status: 'pending',
         admin_comment: 'Initial comment',
       };

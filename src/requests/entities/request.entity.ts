@@ -9,7 +9,10 @@ export class Request {
     user_email: string;
 
     @Column('date')
-    date_Request: Date;
+    date_Start: Date;
+
+    @Column('date')
+    date_Finish: Date;
 
     @Column('text')
     status: string;
