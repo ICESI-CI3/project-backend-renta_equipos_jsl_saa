@@ -9,10 +9,10 @@ export class CreateRequestDto {
     readonly user_email: string;
 
     @IsDate()
-    readonly date_Start: Date;
+    readonly date_start: Date;
 
     @IsDate()
-    readonly date_Finish: Date;
+    readonly date_finish: Date;
 
     @IsString()
     readonly status: string;

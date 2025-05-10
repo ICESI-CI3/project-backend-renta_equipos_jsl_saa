@@ -183,8 +183,8 @@ export class UsersService {
         const newContract = this.contractRepository.create({
             user_email: user.email,
             request_id: result.id,
-            date_Start: result.date_Start,
-            date_Finish: result.date_Finish,
+            date_start: result.date_start,
+            date_finish: result.date_finish,
             status: 'active',
             client_signature: ""
         });
@@ -198,8 +198,8 @@ export class UsersService {
                 await this.contract_deviceRepository.save({
                     contract_id: saveContract.id,
                     device_id: requestDevice.device_id,
-                    deviceName: requestDevice.deviceName,
-                    delivey_status: 'pending'
+                    device_name: requestDevice.device_name,
+                    delivery_status: 'pending'
                 });
 
                 await this.deviceRepository.update(requestDevice.device_id, { status: 'rentado' });

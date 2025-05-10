@@ -12,8 +12,8 @@ describe('ContractDevicesController', () => {
     id: '1',
     contract_id: '123',
     device_id: 'device-123',
-    deviceName: 'DeviceX',
-    delivey_status: 'pending',
+    device_name: 'DeviceX',
+    delivery_status: 'pending',
   };
 
   const mockService = {
@@ -22,7 +22,7 @@ describe('ContractDevicesController', () => {
     getContractDeviceById: jest.fn().mockResolvedValue(mockContractDevice),
     updateContractDevice: jest.fn().mockResolvedValue({
       ...mockContractDevice,
-      deviceName: 'Updated',
+      device_name: 'Updated',
     }),
     deleteContractDevice: jest.fn().mockResolvedValue(undefined),
     getContractDevicesByDeviceName: jest.fn().mockResolvedValue([mockContractDevice]),
@@ -51,8 +51,8 @@ describe('ContractDevicesController', () => {
     const dto: CreateContractDeviceDto = {
       contract_id: '123',
       device_id: 'device-123',
-      deviceName: 'DeviceX',
-      delivey_status: 'pending',
+      device_name: 'DeviceX',
+      delivery_status: 'pending',
     };
     const response = await controller.createContractDevice(2, dto);
     expect(response).toBe('Dispositivos asignados correctamente al contrato');
@@ -75,11 +75,11 @@ describe('ContractDevicesController', () => {
     const dto: CreateContractDeviceDto = {
       contract_id: '123',
       device_id: 'device-456',
-      deviceName: 'Updated',
-      delivey_status: 'delivered',
+      device_name: 'Updated',
+      delivery_status: 'delivered',
     };
     const result = await controller.updateContractDevices('1', dto);
-    expect(result.deviceName).toBe('Updated');
+    expect(result.device_name).toBe('Updated');
     expect(service.updateContractDevice).toHaveBeenCalledWith('1', dto);
   });
 

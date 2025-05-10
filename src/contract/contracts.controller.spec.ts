@@ -12,8 +12,8 @@ describe('ContractsController', () => {
     user_email: 'test@example.com',
     request_id: 'req-1',
     status: 'accepted',
-    date_Start: new Date('2023-01-01'),
-    date_Finish: new Date('2023-12-31'),
+    date_start: new Date('2023-01-01'),
+    date_finish: new Date('2023-12-31'),
     client_signature: 'signature123',
   };
 

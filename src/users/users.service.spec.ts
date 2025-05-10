@@ -176,7 +176,7 @@ describe('UsersService', () => {
       userRepository.findOne = jest.fn().mockResolvedValue(mockUser);
       contractRepository.create = jest.fn().mockReturnValue(contract);
       contractRepository.save = jest.fn().mockResolvedValue(contract);
-      requestDeviceRepository.find = jest.fn().mockResolvedValue([{ device_id: 'dev-1', deviceName: 'Device 1' }]);
+      requestDeviceRepository.find = jest.fn().mockResolvedValue([{ device_id: 'dev-1', device_name: 'Device 1' }]);
       contractDeviceRepository.save = jest.fn();
       deviceRepository.update = jest.fn();
 

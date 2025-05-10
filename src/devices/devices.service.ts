@@ -92,11 +92,11 @@ export class DevicesService {
         return devices;
     }
 
-    async getStock(deviceName: string): Promise<number> {
-        const count = await this.deviceRepository.count({ where: { name: deviceName } });
+    async getStock(device_name: string): Promise<number> {
+        const count = await this.deviceRepository.count({ where: { name: device_name } });
     
         if (count === 0) {
-            throw new NotFoundException(`No devices found with name: ${deviceName}`);
+            throw new NotFoundException(`No devices found with name: ${device_name}`);
         }
     
         return count;

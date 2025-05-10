@@ -12,10 +12,10 @@ export class Contract {
     request_id: string;
 
     @Column('date')
-    date_Start: Date;
+    date_start: Date;
 
     @Column('date')
-    date_Finish: Date;
+    date_finish: Date;
 
     @Column('text')
     status: string;

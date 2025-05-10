@@ -7,6 +7,6 @@ export class CreateRequestDeviceDto {
 
 
     @IsString()
-    readonly deviceName: string;
+    readonly device_name: string;
     
 }

@@ -12,8 +12,8 @@ export class ContractDevice {
     device_id: string;
 
     @Column("text")
-    deviceName: string;
+    device_name: string;
 
     @Column("text")
-    delivey_status: string;
+    delivery_status: string;
 }

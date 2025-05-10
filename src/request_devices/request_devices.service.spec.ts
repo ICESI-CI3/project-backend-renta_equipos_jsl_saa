@@ -45,7 +45,7 @@ describe('RequestDevicesService', () => {
 
   describe('createRequestDevice', () => {
     it('should create request devices and update device status', async () => {
-      const requestDeviceDto = { request_id: 'request-id', device_id: 'device1', deviceName: 'Device1' };
+      const requestDeviceDto = { request_id: 'request-id', device_id: 'device1', device_name: 'Device1' };
       const quantity = 2;
 
       const availableDevices = [
@@ -67,7 +67,7 @@ describe('RequestDevicesService', () => {
     });
 
     it('should throw an error if not enough devices are available', async () => {
-        const requestDeviceDto = { request_id: 'request-id', device_id: 'device1', deviceName: 'Device1' };
+        const requestDeviceDto = { request_id: 'request-id', device_id: 'device1', device_name: 'Device1' };
       const quantity = 3;
 
       jest.spyOn(deviceRepository, 'find').mockResolvedValue([{ id: 'device1', name: 'Device1', status: 'Disponible' }] as Device[]);
@@ -78,7 +78,7 @@ describe('RequestDevicesService', () => {
     });
 
     it('should throw an error if the request does not exist', async () => {
-        const requestDeviceDto = { request_id: 'request-id', device_id: 'device1', deviceName: 'Device1' };
+        const requestDeviceDto = { request_id: 'request-id', device_id: 'device1', device_name: 'Device1' };
       const quantity = 1;
 
       jest.spyOn(deviceRepository, 'find').mockResolvedValue([{ id: 'device1', name: 'Device1', status: 'Disponible' }] as Device[]);
@@ -93,8 +93,8 @@ describe('RequestDevicesService', () => {
   describe('getAllRequestDevices', () => {
     it('should return all request devices', async () => {
       const requestDevices: RequestDevice[] = [
-        { id: '1', deviceName: 'Device1', request_id: 'request-id' } as RequestDevice,
-        { id: '2', deviceName: 'Device2', request_id: 'request-id' } as RequestDevice,
+        { id: '1', device_name: 'Device1', request_id: 'request-id' } as RequestDevice,
+        { id: '2', device_name: 'Device2', request_id: 'request-id' } as RequestDevice,
       ];
 
       jest.spyOn(requestDeviceRepository, 'find').mockResolvedValue(requestDevices);
@@ -109,9 +109,9 @@ describe('RequestDevicesService', () => {
   describe('updateRequestDevice', () => {
     it('should update a request device if it exists', async () => {
       const id = '1';
-      const requestDeviceDto: CreateRequestDeviceDto = { deviceName: 'UpdatedDevice', request_id: 'request-id' };
-      const existingRequestDevice: RequestDevice = { id: '1', device_id: 'device1', deviceName: 'Device1', request_id: 'request-id' } as RequestDevice;
-      const updatedRequestDevice: RequestDevice = { id: '1', device_id: 'updatedDevice',deviceName: 'UpdatedDevice', request_id: 'request-id' } as RequestDevice;
+      const requestDeviceDto: CreateRequestDeviceDto = { device_name: 'UpdatedDevice', request_id: 'request-id' };
+      const existingRequestDevice: RequestDevice = { id: '1', device_id: 'device1', device_name: 'Device1', request_id: 'request-id' } as RequestDevice;
+      const updatedRequestDevice: RequestDevice = { id: '1', device_id: 'updatedDevice',device_name: 'UpdatedDevice', request_id: 'request-id' } as RequestDevice;
 
       jest.spyOn(requestDeviceRepository, 'findOne').mockResolvedValueOnce(existingRequestDevice);
     jest.spyOn(requestDeviceRepository, 'update').mockResolvedValue({ affected: 1 } as any);
@@ -126,7 +126,7 @@ describe('RequestDevicesService', () => {
 
     it('should throw an error if the request device does not exist', async () => {
         const id = 'non-existent-id';
-        const requestDeviceDto: CreateRequestDeviceDto = { deviceName: 'UpdatedDevice', request_id: 'request-id' };
+        const requestDeviceDto: CreateRequestDeviceDto = { device_name: 'UpdatedDevice', request_id: 'request-id' };
       
         jest.spyOn(requestDeviceRepository, 'findOne').mockResolvedValue(null);
         jest.spyOn(requestDeviceRepository, 'update').mockResolvedValue({ affected: 0 } as any); // Mock explícito para update
@@ -142,7 +142,7 @@ describe('RequestDevicesService', () => {
 
   describe('deleteRequestDevice', () => {
     it('should delete a request device if it exists', async () => {
-      const requestDevice = { id: 'request-device-id', deviceName: 'Device1' };
+      const requestDevice = { id: 'request-device-id', device_name: 'Device1' };
   
       jest.spyOn(requestDeviceRepository, 'findOne').mockResolvedValue(requestDevice as RequestDevice);
       jest.spyOn(requestDeviceRepository, 'delete').mockResolvedValue({ affected: 1 } as any);
@@ -166,7 +166,7 @@ describe('RequestDevicesService', () => {
 
   describe('getRequestDeviceById', () => {
     it('should return a request device by ID', async () => {
-      const requestDevice = { id: 'request-device-id', deviceName: 'Device1' };
+      const requestDevice = { id: 'request-device-id', device_name: 'Device1' };
 
       jest.spyOn(requestDeviceRepository, 'findOne').mockResolvedValue(requestDevice as RequestDevice);
 
@@ -184,29 +184,29 @@ describe('RequestDevicesService', () => {
 
   describe('getRequestDevicesByDeviceName', () => {
     it('should return request devices by device name', async () => {
-      const deviceName = 'Device1';
+      const device_name = 'Device1';
       const requestDevices: RequestDevice[] = [
-        { id: '1', deviceName: 'Device1', request_id: 'request-id' } as RequestDevice,
+        { id: '1', device_name: 'Device1', request_id: 'request-id' } as RequestDevice,
       ];
 
       jest.spyOn(requestDeviceRepository, 'find').mockResolvedValue(requestDevices);
 
-      const result = await service.getRequestDevicesByDeviceName(deviceName);
+      const result = await service.getRequestDevicesByDeviceName(device_name);
 
       expect(result).toEqual(requestDevices);
-      expect(requestDeviceRepository.find).toHaveBeenCalledWith({ where: { deviceName } });
+      expect(requestDeviceRepository.find).toHaveBeenCalledWith({ where: { device_name } });
     });
 
     it('should throw an error if no request devices are found', async () => {
-      const deviceName = 'NonExistentDevice';
+      const device_name = 'NonExistentDevice';
 
       jest.spyOn(requestDeviceRepository, 'find').mockResolvedValue([]);
 
-      await expect(service.getRequestDevicesByDeviceName(deviceName)).rejects.toThrow(
+      await expect(service.getRequestDevicesByDeviceName(device_name)).rejects.toThrow(
         'No existen solicitudes para este dispositivo',
       );
 
-      expect(requestDeviceRepository.find).toHaveBeenCalledWith({ where: { deviceName } });
+      expect(requestDeviceRepository.find).toHaveBeenCalledWith({ where: { device_name } });
     });
   });
 });

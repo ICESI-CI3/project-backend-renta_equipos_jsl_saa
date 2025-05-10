@@ -91,9 +91,9 @@ describe('ContractDevicesService', () => {
     it('should assign devices to a contract', async () => {
       const dto: CreateContractDeviceDto = {
         contract_id: 'contract1',
-        deviceName: 'DeviceA',
+        device_name: 'DeviceA',
         device_id: 'device1',
-        delivey_status: 'Pending',
+        delivery_status: 'Pending',
       };
       const devices = [{ id: '1', name: 'DeviceA', status: 'Disponible' }];
       const contract = { id: 'contract1' };
@@ -112,9 +112,9 @@ describe('ContractDevicesService', () => {
       (deviceRepo.find as jest.Mock).mockResolvedValue([]);
       const dto: CreateContractDeviceDto = { 
         contract_id: 'x', 
-        deviceName: 'DeviceA', 
+        device_name: 'DeviceA', 
         device_id: 'device1', 
-        delivey_status: 'Pending' 
+        delivery_status: 'Pending' 
       };
       await expect(service.createContractDevice(dto, 2)).rejects.toThrow(BadRequestException);
     });
@@ -124,9 +124,9 @@ describe('ContractDevicesService', () => {
       (contractRepo.findOne as jest.Mock).mockResolvedValue(null);
       const dto: CreateContractDeviceDto = { 
         contract_id: 'x', 
-        deviceName: 'DeviceA', 
+        device_name: 'DeviceA', 
         device_id: 'device1', 
-        delivey_status: 'Pending' 
+        delivery_status: 'Pending' 
       };
       await expect(service.createContractDevice(dto, 1)).rejects.toThrow(BadRequestException);
     });
@@ -155,28 +155,28 @@ describe('ContractDevicesService', () => {
 
   describe('updateContractDevice', () => {
     it('should update and return the contract device', async () => {
-      const dto = { contract_id: '1', deviceName: 'DeviceX' };
+      const dto = { contract_id: '1', device_name: 'DeviceX' };
       (contractDeviceRepo.findOne as jest.Mock)
         .mockResolvedValueOnce({ id: '1' }) // exists
-        .mockResolvedValueOnce({ id: '1', deviceName: 'DeviceX' }); // after update
+        .mockResolvedValueOnce({ id: '1', device_name: 'DeviceX' }); // after update
 
       const updateDto: CreateContractDeviceDto = { 
         contract_id: '1', 
-        deviceName: 'DeviceX', 
+        device_name: 'DeviceX', 
         device_id: 'device1', 
-        delivey_status: 'Pending' 
+        delivery_status: 'Pending' 
       };
       const result = await service.updateContractDevice('1', updateDto);
-      expect(result).toEqual({ id: '1', deviceName: 'DeviceX' });
+      expect(result).toEqual({ id: '1', device_name: 'DeviceX' });
     });
 
     it('should throw if not found', async () => {
       (contractDeviceRepo.findOne as jest.Mock).mockResolvedValue(null);
       await expect(service.updateContractDevice('x', { 
         contract_id: '1', 
-        deviceName: 'X', 
+        device_name: 'X', 
         device_id: 'device1', 
-        delivey_status: 'Pending' 
+        delivery_status: 'Pending' 
       })).rejects.toThrow();
     });
   });
@@ -196,7 +196,7 @@ describe('ContractDevicesService', () => {
 
   describe('getContractDevicesByDeviceName', () => {
     it('should return contract devices by name', async () => {
-      const results = [{ id: '1', deviceName: 'DeviceA' }];
+      const results = [{ id: '1', device_name: 'DeviceA' }];
       (contractDeviceRepo.find as jest.Mock).mockResolvedValue(results);
       expect(await service.getContractDevicesByDeviceName('DeviceA')).toEqual(results);
     });

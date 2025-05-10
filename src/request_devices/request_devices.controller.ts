@@ -38,8 +38,8 @@ export class RequestDevicesController {
     return this.requestDevicesService.deleteRequestDevice(id);
   }
 
-  @Get(':deviceName')
-  async getRequestDevicesByDeviceName(@Param('deviceName') deviceName: string): Promise<RequestDevice[]> {
-    return this.requestDevicesService.getRequestDevicesByDeviceName(deviceName);
+  @Get(':device_name')
+  async getRequestDevicesByDeviceName(@Param('device_name') device_name: string): Promise<RequestDevice[]> {
+    return this.requestDevicesService.getRequestDevicesByDeviceName(device_name);
   }
 }

@@ -39,12 +39,12 @@ export class RequestDevicesService {
      */
     async createRequestDevice(requestDevice: CreateRequestDeviceDto, quantity: number): Promise<String> {
         const devicesAvailable = await this.deviceRepository.find({
-            where: { name: requestDevice.deviceName, status: 'Disponible' },
+            where: { name: requestDevice.device_name, status: 'Disponible' },
         });
     
         if (devicesAvailable.length < quantity) {
             throw new BadRequestException(
-                `No hay suficientes dispositivos disponibles con el nombre "${requestDevice.deviceName}". ` +
+                `No hay suficientes dispositivos disponibles con el nombre "${requestDevice.device_name}". ` +
                 `Se encontraron ${devicesAvailable.length}, pero se necesitan ${quantity}.`
             );
         }
@@ -54,7 +54,7 @@ export class RequestDevicesService {
             const newRequestDevice = this.requestDeviceRepository.create({
                 request_id: requestDevice.request_id,
                 device_id: device.id,
-                deviceName: requestDevice.deviceName,
+                device_name: requestDevice.device_name,
             });
             await this.requestDeviceRepository.save(newRequestDevice);
         }
@@ -181,14 +181,14 @@ export class RequestDevicesService {
     /**
      * Retrieves all request-device associations for a specific device.
      * 
-     * @param deviceName - Name of the device to filter by
+     * @param device_name - Name of the device to filter by
      * @returns Array of matching RequestDevice entities
      * @throws NotFoundException if no associations exist for the device
      */
-    async getRequestDevicesByDeviceName(deviceName: string): Promise<RequestDevice[]> {
+    async getRequestDevicesByDeviceName(device_name: string): Promise<RequestDevice[]> {
         try {
             const requestDevices = await this.requestDeviceRepository.find({ 
-                where: { deviceName } 
+                where: { device_name } 
             });
             
             if (!requestDevices || requestDevices.length === 0) {

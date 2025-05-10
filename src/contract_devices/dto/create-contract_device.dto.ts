@@ -8,10 +8,10 @@ export class CreateContractDeviceDto {
     readonly device_id: string;
 
     @IsString()
-    readonly deviceName: string;
+    readonly device_name: string;
 
     @IsString()
-    readonly delivey_status: string;
+    readonly delivery_status: string;
 
     
 }

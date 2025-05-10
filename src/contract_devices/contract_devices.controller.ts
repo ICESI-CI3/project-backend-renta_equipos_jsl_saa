@@ -50,11 +50,11 @@ import {
       return this.service.deleteContractDevice(id);
     }
   
-    @Get(":deviceName")
+    @Get(":device_name")
     async getContractDevicesByDeviceName(
-      @Param("deviceName") deviceName: string
+      @Param("device_name") device_name: string
     ): Promise<ContractDevice[]> {
-      return this.service.getContractDevicesByDeviceName(deviceName);
+      return this.service.getContractDevicesByDeviceName(device_name);
     }
   }
   

@@ -11,10 +11,10 @@ export class CreateContractDto {
     readonly request_id: string;
 
     @IsDate()
-    readonly date_Start: Date;
+    readonly date_start: Date;
 
     @IsDate()
-    readonly date_Finish: Date;
+    readonly date_finish: Date;
 
 
     @IsString()
