@@ -6,7 +6,7 @@ export class UserDTO {
     readonly name: string;
 
     @IsString()
-    @Matches(/^[\w]+@[\w]\.[\w]/, {
+    @Matches(/^[\w.-]+@[\w-]+\.[a-zA-Z]{2,}$/, {
         message: 'Correo electrónico inválido',
     })
     readonly email: string;

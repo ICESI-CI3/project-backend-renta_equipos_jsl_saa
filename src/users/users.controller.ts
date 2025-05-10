@@ -25,7 +25,7 @@ export class UsersController {
     getAllUsers(@Query() pagination: PaginationDTO) {
         return this.usersService.getAllUsers(pagination);
     }
-
+ 
     /**
      * Retrieves a user by their unique identifier.
      * @param id - The UUID of the user to retrieve.

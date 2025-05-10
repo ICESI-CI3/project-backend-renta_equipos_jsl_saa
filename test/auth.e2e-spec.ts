@@ -43,7 +43,7 @@ describe('AuthController (e2e)', () => {
     console.log(res.body);
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
-    expect(res.body).toHaveProperty('username', 'testuser');
+    expect(res.body).toHaveProperty('name', 'testuser');
     expect(res.body).toHaveProperty('email', 'testuser@example.com');
     expect(res.body).toHaveProperty('cellphone', '1234567890');
     expect(res.body).toHaveProperty('address', '123 Test St');

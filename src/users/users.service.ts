@@ -98,6 +98,16 @@ export class UsersService {
         return user;
     }
 
+    /**
+     * Retrieves a user by their email address.
+     *
+     * @param email - The email address of the user to retrieve.
+     * @returns A promise that resolves to the user entity if found.
+     * @throws An error if the user with the specified email does not exist.
+     *
+     * @remarks
+     * - This method looks up a user in the database using their email address.
+     */
     async getUserByEmail(email: string): Promise<User> {
         const user = await this.userRepository.findOne({ 
             where: { email },
@@ -145,6 +155,18 @@ export class UsersService {
         }
     }
 
+
+    /**
+     * Accepts a request and creates a contract for the user.
+     *
+     * @param idRequest - The ID of the request to accept.
+     * @returns A promise that resolves when the request is accepted and the contract is created.
+     * @throws An error if the request or user does not exist.
+     *
+     * @remarks
+     * - This method updates the status of the request to 'accepted'.
+     * - It also creates a new contract for the user associated with the request.
+     */
     async acceptRequest(idRequest: string): Promise<void> {
         const result = await this.requestRepository.findOne({ where: { id: idRequest } });
         if (!result) {
