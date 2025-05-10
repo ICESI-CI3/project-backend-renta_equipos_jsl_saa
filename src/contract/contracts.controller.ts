@@ -11,6 +11,8 @@ import {
   } from '@nestjs/common';
   import { ContractsService } from './contracts.service';
   import { Contract } from './entities/contract.entity';
+  import { ApiTags, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
+import { CreateContractDto } from './dto/create-contract.dto';
   
   @Controller('api/v1/contracts')
   export class ContractsController {
@@ -21,6 +23,8 @@ import {
      * @returns The created contract.
      */
     @Post("")
+    @ApiOperation({ summary: 'Crear un nuevo contrato' })
+    @ApiBody({ type: CreateContractDto })
     async createContract(@Body() contract: Contract): Promise<Contract> {
       try {
         return await this.contractsService.createContract(contract);
@@ -34,6 +38,7 @@ import {
      * @returns A list of all contracts.
      */
     @Get("")
+    @ApiOperation({ summary: 'Obtener todos los contratos' })
     async getAllContracts(): Promise<Contract[]> {
       return this.contractsService.getAllContracts();
     }
@@ -44,6 +49,8 @@ import {
      * @returns The contract with the specified ID.
      */
     @Get(":id")
+    @ApiOperation({ summary: 'Obtener un contrato por su ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID del contrato' })
     async getContractById(@Param('id') id: string): Promise<Contract> {
       try {
         return await this.contractsService.getContractById(id);
@@ -59,6 +66,9 @@ import {
      * @returns The updated contract.
      */
     @Put(":id")
+    @ApiOperation({ summary: 'Actualizar un contrato por ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID del contrato' })
+    @ApiBody({ type: CreateContractDto })
     async updateContract(
       @Param('id') id: string,
       @Body() contract: Contract
@@ -76,6 +86,8 @@ import {
      * @returns A confirmation of the deletion.
      */
     @Delete(":id")
+    @ApiOperation({ summary: 'Eliminar un contrato por ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID del contrato' })
     async deleteContract(@Param('id') id: string): Promise<{ message: string }> {
       try {
         await this.contractsService.deleteContract(id);
@@ -91,6 +103,8 @@ import {
      * @returns A list of contracts associated with the specified user email.
      */
     @Get(':email')
+    @ApiOperation({ summary: 'Obtener contratos por correo del usuario' })
+    @ApiParam({ name: 'email', type: 'string', description: 'Correo electrónico del usuario' })
     async getContractsByUserEmail(
       @Param('email') email: string
     ): Promise<Contract[]> {
@@ -108,6 +122,8 @@ import {
      */
      // @Auth(ValidRoles.admin, ValidRoles.superuser)
     @Get(':status')
+    @ApiOperation({ summary: 'Obtener contratos por estado' })
+    @ApiParam({ name: 'status', type: 'string', description: 'Estado del contrato (ej. Activo)' })
     async getContractsByStatus(
       @Param('status') status: string
     ): Promise<Contract[]> {

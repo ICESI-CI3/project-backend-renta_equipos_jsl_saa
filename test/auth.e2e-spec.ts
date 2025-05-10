@@ -33,8 +33,8 @@ describe('AuthController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/auth/register')
       .send({
-        name: 'testuser',
-        email: 'testuser@example.com',
+        name: 'testsuser',
+        email: 'tesstuser@eexample.com',
         password: 'securePassword123',
         cellphone: '1234567890',
         address: '123 Test St',
@@ -43,8 +43,8 @@ describe('AuthController (e2e)', () => {
     console.log(res.body);
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
-    expect(res.body).toHaveProperty('name', 'testuser');
-    expect(res.body).toHaveProperty('email', 'testuser@example.com');
+    expect(res.body).toHaveProperty('name', 'testsuser');
+    expect(res.body).toHaveProperty('email', 'tesstuser@eexample.com');
     expect(res.body).toHaveProperty('cellphone', '1234567890');
     expect(res.body).toHaveProperty('address', '123 Test St');
     expect(res.body).toHaveProperty('role', 'user');
@@ -54,7 +54,7 @@ describe('AuthController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({
-        email: 'testuser@example.com',
+        email: 'tesstuser@eexample.com',
         password: 'securePassword123',
       });
 
@@ -66,7 +66,7 @@ describe('AuthController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({
-        email: 'testuser@example.com',
+        email: 'tesstuser@eexample.com',
         password: 'wrongPassword',
       });
 

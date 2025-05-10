@@ -6,7 +6,9 @@ import { Auth } from './decorators/auth.decorator';
 import { ValidRoles } from './interfaces/valid-role';
 import { PaginationDTO } from '../common/dto/pagination.dto';
 import { UserDTO } from '../users/dto/user.dto';
+import {ApiTags,ApiOperation,ApiResponse,ApiBody,ApiParam,ApiQuery,ApiBearerAuth} from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('api/v1/auth')
 export class AuthController {
 
@@ -19,8 +21,13 @@ export class AuthController {
    * @param signInDto - The sign-in data containing email and password.
    * @returns An object containing the access token.
    */
+
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  @ApiOperation({ summary: 'Autenticar usuario' })
+  @ApiResponse({ status: 200, description: 'Autenticación exitosa, retorna token' })
+  @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
+  @ApiBody({ type: SignInDto })
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
@@ -31,6 +38,10 @@ export class AuthController {
    * @returns The registered user information.
    */
   @Post('register')
+  @ApiOperation({ summary: 'Registrar nuevo usuario' })
+  @ApiResponse({ status: 201, description: 'Usuario registrado correctamente' })
+  @ApiResponse({ status: 400, description: 'Datos inválidos' })
+  @ApiBody({ type: UserDTO })
   register(@Body() user: UserDTO) {
     return this.usersService.createUser(user);
   }
@@ -43,6 +54,11 @@ export class AuthController {
    */
   @Get('')
   @Auth(ValidRoles.admin, ValidRoles.superuser)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtener todos los usuarios' })
+  @ApiResponse({ status: 200, description: 'Lista de usuarios' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
   getAllUsers(@Query() pagination: PaginationDTO) {
       return this.usersService.getAllUsers(pagination);
   }
@@ -54,6 +70,11 @@ export class AuthController {
    */
   @Get(':id')
   @Auth(ValidRoles.admin, ValidRoles.superuser)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtener usuario por ID' })
+  @ApiResponse({ status: 200, description: 'Usuario encontrado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
   getById(@Param('id', ParseUUIDPipe) id: string) {
       return this.usersService.getUserById(id);
   }
@@ -66,6 +87,12 @@ export class AuthController {
    */
   @Patch(':id')
   @Auth(ValidRoles.admin, ValidRoles.superuser)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar usuario' })
+  @ApiResponse({ status: 200, description: 'Usuario actualizado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
+  @ApiBody({ type: UserDTO })
   update(@Param('id', ParseUUIDPipe) id: string, @Body() user: UserDTO) {
       return this.usersService.updateUser(id, user);
   }
@@ -77,6 +104,11 @@ export class AuthController {
    */
   @Delete(':id')
   @Auth(ValidRoles.admin, ValidRoles.superuser)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar usuario' })
+  @ApiResponse({ status: 200, description: 'Usuario eliminado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
   delete(@Param('id', ParseUUIDPipe) id: string) {
       return this.usersService.deleteUser(id);
   }

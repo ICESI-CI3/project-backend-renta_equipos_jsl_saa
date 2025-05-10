@@ -12,12 +12,17 @@ import {
   import { ContractDevicesService } from "./contract_devices.service";
   import { CreateContractDeviceDto } from "./dto/create-contract_device.dto";
   import { ContractDevice } from "./entities/contract_device.entity";
+  import { ApiTags, ApiOperation, ApiParam, ApiBody } from "@nestjs/swagger";
   
+  @ApiTags('Contract Devices')
   @Controller("api/v1/contract-devices")
   export class ContractDevicesController {
     constructor(private readonly service: ContractDevicesService) {}
   
     @Post(":quantity")
+    @ApiOperation({ summary: 'Crear una asignación de dispositivo a contrato' })
+    @ApiParam({ name: 'quantity', type: Number, description: 'Cantidad de dispositivos a registrar' })
+    @ApiBody({ type: CreateContractDeviceDto })
     createContractDevice(
     @Param('quantity') quantity: number,
     @Body() dto: CreateContractDeviceDto,): Promise<string> {
@@ -26,11 +31,14 @@ import {
 
   
     @Get("")
+    @ApiOperation({ summary: 'Obtener todos los dispositivos de contrato' })
     async getAllContractDevices(): Promise<ContractDevice[]> {
       return this.service.getAllContractDevices();
     }
   
     @Get(":id")
+    @ApiOperation({ summary: 'Obtener un dispositivo de contrato por ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID del dispositivo de contrato' })
     async getContractDevicesById(
       @Param("id", ParseUUIDPipe) id: string
     ): Promise<ContractDevice> {
@@ -38,6 +46,9 @@ import {
     }
   
     @Put(":id")
+    @ApiOperation({ summary: 'Actualizar un dispositivo de contrato' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID del dispositivo de contrato' })
+    @ApiBody({ type: CreateContractDeviceDto })
     async updateContractDevices(
       @Param("id", ParseUUIDPipe) id: string,
       @Body() dto: CreateContractDeviceDto
@@ -46,11 +57,15 @@ import {
     }
   
     @Delete(":id")
+    @ApiOperation({ summary: 'Eliminar un dispositivo de contrato' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID del dispositivo de contrato' })
     async deleteContractDevice(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
       return this.service.deleteContractDevice(id);
     }
   
-    @Get(":device_name")
+    @Get(":deviceName")
+    @ApiOperation({ summary: 'Obtener dispositivos de contrato por nombre de dispositivo' })
+    @ApiParam({ name: 'deviceName', type: 'string', description: 'Nombre del dispositivo' })
     async getContractDevicesByDeviceName(
       @Param("device_name") device_name: string
     ): Promise<ContractDevice[]> {
