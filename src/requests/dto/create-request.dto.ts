@@ -1,22 +1,81 @@
-import { IsDate, IsInt, IsString, Min } from "class-validator";
+import {
+  IsDateString,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
+} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+@ValidatorConstraint({ name: 'IsStartBeforeFinish', async: false })
+class IsStartBeforeFinishConstraint implements ValidatorConstraintInterface {
+  validate(_: any, args: ValidationArguments) {
+    const obj = args.object as any;
+    if (!obj.date_Start || !obj.date_Finish) return true; // se validan por separado
+    return new Date(obj.date_Start) < new Date(obj.date_Finish);
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return `La fecha de inicio (date_Start) debe ser anterior a la fecha de finalización (date_Finish).`;
+  }
+}
 
 export class CreateRequestDto {
+  @ApiProperty({
+    description: 'Identificador único de la solicitud en formato UUID',
+    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
+  })
+  @IsUUID()
+  readonly id: string;
 
-    @IsString()
-    readonly id: string;
-    
-    @IsString()
-    readonly user_email: string;
+  @ApiProperty({
+    description: 'Correo electrónico del usuario que realiza la solicitud',
+    example: 'usuario@example.com',
+  })
+  @IsEmail({}, { message: 'El correo electrónico no es válido' })
+  readonly user_email: string;
 
-    @IsDate()
-    readonly date_Start: Date;
+  @ApiProperty({
+    description: 'Fecha de inicio de la solicitud (ISO 8601)',
+    example: '2025-05-10T08:00:00Z',
+  })
+  @IsDateString({})
+  readonly date_Start: string;
 
-    @IsDate()
-    readonly date_Finish: Date;
+  @ApiProperty({
+    description: 'Fecha de finalización de la solicitud (ISO 8601)',
+    example: '2025-05-15T18:00:00Z',
+  })
+  @IsDateString({})
+  readonly date_Finish: string;
 
-    @IsString()
-    readonly status: string;
+  @Validate(IsStartBeforeFinishConstraint)
+  validateDates: boolean; // campo auxiliar para invocar la validación personalizada
 
-    @IsString()
-    readonly admin_comment: string;
+  @ApiProperty({
+    description: 'Estado de la solicitud (pendiente, aprobada, rechazada)',
+    example: 'pendiente',
+    enum: ['pendiente', 'aprobada', 'rechazada'],
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'El estado no puede estar vacío' })
+  readonly status: string;
+
+  @ApiProperty({
+    description: 'Comentario del administrador (opcional)',
+    example: 'Solicitud validada y aprobada.',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500, {
+    message: 'El comentario no puede tener más de 500 caracteres',
+  })
+  readonly admin_comment?: string;
 }

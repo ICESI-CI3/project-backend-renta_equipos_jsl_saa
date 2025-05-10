@@ -7,10 +7,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserRoleGuard } from '../auth/guards/user-role.guard';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/interfaces/valid-role';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
 
 /**
  * Controller for managing user-related operations.
  */
+@ApiTags('users')
+@ApiBearerAuth()
 @Controller('api/v1/users')
 export class UsersController {
 
@@ -22,6 +25,9 @@ export class UsersController {
      * @returns A list of all users.
      */
     @Get('')
+    @ApiOperation({ summary: 'Get all users' })
+    @ApiQuery({ name: 'limit', required: false, type: Number })
+    @ApiQuery({ name: 'offset', required: false, type: Number })
     getAllUsers(@Query() pagination: PaginationDTO) {
         return this.usersService.getAllUsers(pagination);
     }
@@ -33,6 +39,8 @@ export class UsersController {
      */
     @Get(':id')
     @UseGuards(AuthGuard())
+    @ApiOperation({ summary: 'Get user by ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     getById(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.getUserById(id);
     }
@@ -45,6 +53,8 @@ export class UsersController {
      */
     @Patch(':id')
     @UseGuards(AuthGuard())
+    @ApiOperation({ summary: 'Update user by ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     update(@Param('id', ParseUUIDPipe) id: string, @Body() user: UserDTO) {
         return this.usersService.updateUser(id, user);
     }
@@ -56,18 +66,24 @@ export class UsersController {
      */
     @Delete(':id')
     @UseGuards(AuthGuard())
+    @ApiOperation({ summary: 'Delete user by ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     delete(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.deleteUser(id);
     }
 
     @Patch('accept/:idRequest')
     @Auth(ValidRoles.admin, ValidRoles.superuser)
+    @ApiOperation({ summary: 'Accept a request by ID' })
+    @ApiParam({ name: 'idRequest', type: 'string', description: 'UUID of the request to accept' })
     acceptsRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
         return this.usersService.acceptRequest(idRequest);
     }
 
     @Patch('reject/:idRequest')
     @Auth(ValidRoles.admin, ValidRoles.superuser)
+    @ApiOperation({ summary: 'Reject a request by ID' })
+    @ApiParam({ name: 'idRequest', type: 'string', description: 'UUID of the request to reject' })
     rejectRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
         return this.usersService.rejectRequest(idRequest);
     }
