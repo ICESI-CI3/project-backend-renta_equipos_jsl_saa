@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Contract } from "./entities/contract.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -17,12 +17,12 @@ export class ContractsService{
     async createContract(contract: Contract): Promise<Contract> {
         const userEmailExists = await this.userRepository.findOne({ where: { email: contract.user_email } });
         if (!userEmailExists) {
-            throw new Error("El usuario no existe");
+            throw new NotFoundException("El usuario no existe");
         }
 
         const requestExists = await this.requestRepository.findOne({ where: { id: contract.request_id } });
         if (!requestExists) {
-            throw new Error("La solicitud no existe");
+            throw new NotFoundException("La solicitud no existe");
         }
 
         const requestAccepted = await this.requestRepository.findOne({ where: { id: contract.request_id, status: 'accepted' } });
