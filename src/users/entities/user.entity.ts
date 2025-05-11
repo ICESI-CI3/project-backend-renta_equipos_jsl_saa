@@ -12,7 +12,7 @@ export class User {
     @Column('text', { unique: true })
     email: string;
 
-    @Column('text')
+    @Column('text', { select: false })
     password : string;
 
     @Column('text')
@@ -21,6 +21,6 @@ export class User {
     @Column('text')
     address: string;
 
-    @Column('text')
+    @Column('text', {default: 'user'})
     role: string;
 }

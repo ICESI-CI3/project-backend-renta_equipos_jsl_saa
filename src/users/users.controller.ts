@@ -1,30 +1,42 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDTO } from './dto/user.dto';
+import { PaginationDTO } from '../common/dto/pagination.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { ValidRoles } from '../auth/interfaces/valid-role';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
 
 /**
  * Controller for managing user-related operations.
  */
-@Controller('users')
+@ApiTags('users')
+@ApiBearerAuth()
+@Controller('api/v1/users')
 export class UsersController {
 
     constructor(private readonly usersService: UsersService) {}
 
     /**
      * Retrieves all users.
+     * @param pagination - Optional pagination parameters.
      * @returns A list of all users.
      */
-    @Get('api/v1/')
-    getAllUsers() {
-        return this.usersService.getAllUsers();
+    @Get('')
+    @ApiOperation({ summary: 'Get all users' })
+    @ApiQuery({ name: 'limit', required: false, type: Number })
+    @ApiQuery({ name: 'offset', required: false, type: Number })
+    getAllUsers(@Query() pagination: PaginationDTO) {
+        return this.usersService.getAllUsers(pagination);
     }
-
+ 
     /**
      * Retrieves a user by their unique identifier.
      * @param id - The UUID of the user to retrieve.
      * @returns The user with the specified ID.
      */
-    @Get('api/v1/:id')
+    @Get(':id')
+    @ApiOperation({ summary: 'Get user by ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     getById(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.getUserById(id);
     }
@@ -35,7 +47,10 @@ export class UsersController {
      * @param user - The updated user data.
      * @returns The updated user information.
      */
-    @Patch('api/v1/:id')
+    @Patch(':id')
+
+    @ApiOperation({ summary: 'Update user by ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     update(@Param('id', ParseUUIDPipe) id: string, @Body() user: UserDTO) {
         return this.usersService.updateUser(id, user);
     }
@@ -45,19 +60,26 @@ export class UsersController {
      * @param id - The UUID of the user to delete.
      * @returns A confirmation of the deletion.
      */
-    @Delete('api/v1/:id')
+    @Delete(':id')
+    @ApiOperation({ summary: 'Delete user by ID' })
+    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     delete(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersService.deleteUser(id);
     }
 
-    /**
-     * Creates a new user.
-     * @param user - The data of the user to create.
-     * @returns The newly created user.
-     */
-    @Post('api/v1/')
-    create(@Body() user: UserDTO) {
-        return this.usersService.createUser(user);
+    @Patch('accept/:idRequest')
+    @Auth(ValidRoles.admin, ValidRoles.superuser)
+    @ApiOperation({ summary: 'Accept a request by ID' })
+    @ApiParam({ name: 'idRequest', type: 'string', description: 'UUID of the request to accept' })
+    acceptsRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
+        return this.usersService.acceptRequest(idRequest);
     }
 
+    @Patch('reject/:idRequest')
+    @Auth(ValidRoles.admin, ValidRoles.superuser)
+    @ApiOperation({ summary: 'Reject a request by ID' })
+    @ApiParam({ name: 'idRequest', type: 'string', description: 'UUID of the request to reject' })
+    rejectRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
+        return this.usersService.rejectRequest(idRequest);
+    }
 }
