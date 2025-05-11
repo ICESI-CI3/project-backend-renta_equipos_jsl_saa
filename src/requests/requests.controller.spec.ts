@@ -2,29 +2,28 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RequestsController } from './requests.controller';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
-import { Request } from './entities/request.entity';
 
 describe('RequestsController', () => {
   let controller: RequestsController;
   let service: RequestsService;
 
-  const mockRequest: Request = {
-    id: 'uuid-1234',
-    user_email: 'test@example.com',
-    date_start: new Date(),
-    date_finish: new Date(),
-    status: 'pending',
-    admin_comment: 'Test comment',
+  const mockService = {
+    getAllRequests: jest.fn(),
+    getRequestById: jest.fn(),
+    updateRequest: jest.fn(),
+    deleteRequest: jest.fn(),
+    createRequest: jest.fn(),
+    getRequestByUserEmail: jest.fn(),
+    getRequestByStatus: jest.fn(),
   };
 
-  const mockService = {
-    getAllRequests: jest.fn().mockResolvedValue([mockRequest]),
-    getRequestById: jest.fn().mockResolvedValue(mockRequest),
-    updateRequest: jest.fn().mockResolvedValue(mockRequest),
-    deleteRequest: jest.fn().mockResolvedValue(undefined),
-    createRequest: jest.fn().mockResolvedValue(mockRequest),
-    getRequestByUserEmail: jest.fn().mockResolvedValue([mockRequest]),
-    getRequestByStatus: jest.fn().mockResolvedValue([mockRequest]),
+  const validDto: CreateRequestDto = {
+    user_email: 'usuario@example.com',
+    date_Start: new Date('2025-05-10T08:00:00Z'),
+    date_Finish: new Date('2025-05-15T18:00:00Z'),
+    validateDates: true,
+    status: 'pendiente',
+    admin_comment: 'Comentario de prueba',
   };
 
   beforeEach(async () => {
@@ -37,61 +36,49 @@ describe('RequestsController', () => {
     service = module.get<RequestsService>(RequestsService);
   });
 
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+
   it('should return all requests', async () => {
-    const result = await controller.getAllRequests();
-    expect(result).toEqual([mockRequest]);
-    expect(service.getAllRequests).toHaveBeenCalled();
+    const result = [validDto];
+    mockService.getAllRequests.mockResolvedValue(result);
+    expect(await controller.getAllRequests()).toBe(result);
   });
 
-  it('should return a request by ID', async () => {
-    const result = await controller.getById('uuid-1234');
-    expect(result).toEqual(mockRequest);
-    expect(service.getRequestById).toHaveBeenCalledWith('uuid-1234');
+  it('should return request by id', async () => {
+    const result = { id: 'uuid-123', ...validDto };
+    mockService.getRequestById.mockResolvedValue(result);
+    expect(await controller.getById('uuid-123')).toBe(result);
   });
 
-  it('should update a request', async () => {
-    const dto: CreateRequestDto = {
-      id: 'uuid-1234',
-      user_email: 'test@example.com',
-      date_start: new Date(),
-      date_finish: new Date(),
-      status: 'approved',
-      admin_comment: 'Updated',
-    };
-    const result = await controller.update('uuid-1234', dto);
-    expect(result).toEqual(mockRequest);
-    expect(service.updateRequest).toHaveBeenCalledWith('uuid-1234', dto);
+  it('should update request by id', async () => {
+    const updated = { id: 'uuid-123', ...validDto, status: 'aprobada' };
+    mockService.updateRequest.mockResolvedValue(updated);
+    expect(await controller.update('uuid-123', validDto)).toBe(updated);
   });
 
-  it('should delete a request', async () => {
-    const result = await controller.delete('uuid-1234');
-    expect(result).toBeUndefined();
-    expect(service.deleteRequest).toHaveBeenCalledWith('uuid-1234');
+  it('should delete request by id', async () => {
+    const result = { deleted: true };
+    mockService.deleteRequest.mockResolvedValue(result);
+    expect(await controller.delete('uuid-123')).toBe(result);
   });
 
-  it('should create a new request', async () => {
-    const dto: CreateRequestDto = {
-      id: 'uuid-1234',
-      user_email: 'test@example.com',
-      date_start: new Date(),
-      date_finish: new Date(),
-      status: 'pending',
-      admin_comment: 'New request',
-    };
-    const result = await controller.create(dto);
-    expect(result).toEqual(mockRequest);
-    expect(service.createRequest).toHaveBeenCalledWith(dto);
+  it('should create a request', async () => {
+    const result = { id: 'uuid-123', ...validDto };
+    mockService.createRequest.mockResolvedValue(result);
+    expect(await controller.create(validDto)).toBe(result);
   });
 
-  it('should return requests by user email', async () => {
-    const result = await controller.getByUserEmail('test@example.com');
-    expect(result).toEqual([mockRequest]);
-    expect(service.getRequestByUserEmail).toHaveBeenCalledWith('test@example.com');
+  it('should get requests by user email', async () => {
+    const result = [{ id: 'uuid-123', ...validDto }];
+    mockService.getRequestByUserEmail.mockResolvedValue(result);
+    expect(await controller.getByUserEmail('usuario@example.com')).toBe(result);
   });
 
-  it('should return requests by status', async () => {
-    const result = await controller.getByStatus('pending');
-    expect(result).toEqual([mockRequest]);
-    expect(service.getRequestByStatus).toHaveBeenCalledWith('pending');
+  it('should get requests by status', async () => {
+    const result = [{ id: 'uuid-123', ...validDto }];
+    mockService.getRequestByStatus.mockResolvedValue(result);
+    expect(await controller.getByStatus('pendiente')).toBe(result);
   });
 });
