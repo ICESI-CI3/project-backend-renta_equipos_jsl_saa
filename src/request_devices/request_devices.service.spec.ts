@@ -5,7 +5,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { RequestDevice } from './entities/request_device.entity';
 import { Device } from '../devices/entities/device.entity';
 import { Request } from '../requests/entities/request.entity';
-import { NotFoundError } from 'rxjs';
 import { CreateRequestDeviceDto } from './dto/create-request_device.dto';
 
 describe('RequestDevicesService', () => {

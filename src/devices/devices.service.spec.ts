@@ -3,7 +3,7 @@ import { Device } from './entities/device.entity';
 import { Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundError } from 'rxjs';
+import { NotFoundException } from 'rxjs';
 
 const mockDeviceRepository = () => ({
   find: jest.fn(),
@@ -69,7 +69,7 @@ describe('DevicesService', () => {
   describe('getDeviceById', () => {
     it('should throw if device not found', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.getDeviceById('123')).rejects.toThrow(NotFoundError);
+      await expect(service.getDeviceById('123')).rejects.toThrow(NotFoundException);
     });
 
     it('should return the device', async () => {
@@ -84,7 +84,7 @@ describe('DevicesService', () => {
   describe('updateDevice', () => {
     it('should throw if device does not exist', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.updateDevice('123', {} as any)).rejects.toThrow(NotFoundError);
+      await expect(service.updateDevice('123', {} as any)).rejects.toThrow(NotFoundException);
     });
 
     it('should update and return the updated device', async () => {
@@ -101,7 +101,7 @@ describe('DevicesService', () => {
   describe('deleteDevice', () => {
     it('should throw if device not found', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.deleteDevice('999')).rejects.toThrow(NotFoundError);
+      await expect(service.deleteDevice('999')).rejects.toThrow(NotFoundException);
     });
 
     it('should call delete if device exists', async () => {
@@ -124,7 +124,7 @@ describe('DevicesService', () => {
 
     it('should throw if device not found', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.getDeviceByName('Tablet')).rejects.toThrow(NotFoundError);
+      await expect(service.getDeviceByName('Tablet')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -139,7 +139,7 @@ describe('DevicesService', () => {
 
     it('should throw if no devices found', async () => {
       repository.find.mockResolvedValue([]);
-      await expect(service.getDeviceByType('Unknown')).rejects.toThrow(NotFoundError);
+      await expect(service.getDeviceByType('Unknown')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -154,7 +154,7 @@ describe('DevicesService', () => {
 
     it('should throw if no devices found', async () => {
       repository.find.mockResolvedValue([]);
-      await expect(service.getDeviceByStatus('Inactivo')).rejects.toThrow(NotFoundError);
+      await expect(service.getDeviceByStatus('Inactivo')).rejects.toThrow(NotFoundException);
     });
   });
 

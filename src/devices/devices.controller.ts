@@ -10,7 +10,10 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 export class DevicesController {
 
     constructor(private readonly devicesService: DevicesService) {}
-
+    /**
+     * Retrieves all devices.
+     * @returns - A promise that resolves to an array of devices.
+     */
     @Get('')
     @ApiOperation({ summary: 'Obtiene todos los dispositivos' })
     @ApiResponse({ status: 200, description: 'Lista de dispositivos obtenida exitosamente' })
@@ -18,6 +21,11 @@ export class DevicesController {
         return this.devicesService.getAllDevices();
     }
 
+    /**
+     * Retrieves a device by its ID.
+     * @param id - The ID of the device to retrieve.
+     * @returns - A promise that resolves to the device with the specified ID.
+     */
     @Get(':id')
     @ApiOperation({ summary: 'Obtiene un dispositivo por su ID' })
     @ApiResponse({ status: 200, description: 'Dispositivo encontrado' })
@@ -26,6 +34,11 @@ export class DevicesController {
         return this.devicesService.getDeviceById(id);
     }
 
+    /**
+     * Retrieves devices by their name.
+     * @param name - The name of the device to filter by.
+     * @returns - A promise that resolves to an array of devices with the specified name.
+     */
     @Patch(':id')
     @Auth(ValidRoles.admin, ValidRoles.superuser)
     @ApiOperation({ summary: 'Actualiza un dispositivo' })
@@ -35,6 +48,11 @@ export class DevicesController {
         return this.devicesService.updateDevice(id, device);
     }
 
+    /**
+     * Deletes a device by its ID.
+     * @param id - The ID of the device to delete.
+     * @returns - A promise that resolves to a string indicating the result of the operation.
+     */
     @Delete(':id')
     @Auth(ValidRoles.admin, ValidRoles.superuser)
     @ApiOperation({ summary: 'Elimina un dispositivo' })
@@ -44,6 +62,11 @@ export class DevicesController {
         return this.devicesService.deleteDevice(id);
     }
 
+    /**
+     * Creates a new device.
+     * @param device - The device to create.
+     * @returns - A promise that resolves to the created device.
+     */
     @Post(':stock')
     @ApiOperation({ summary: 'Crea un nuevo dispositivo' })
     @ApiResponse({ status: 201, description: 'Dispositivo creado exitosamente' })

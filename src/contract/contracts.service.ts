@@ -14,6 +14,12 @@ export class ContractsService{
         @InjectRepository(Request) private readonly requestRepository: Repository<Request>
     ){}
 
+
+    /**
+     * Creates a new contract.
+     * @param contract - The contract to create. 
+     * @returns the created contract.
+     */
     async createContract(contract: Contract): Promise<Contract> {
         const userEmailExists = await this.userRepository.findOne({ where: { email: contract.user_email } });
         if (!userEmailExists) {
@@ -35,10 +41,19 @@ export class ContractsService{
         return this.contractRepository.save(newContract);
     }
 
+    /**
+     * Retrieves all contracts.
+     * @returns an array of contracts.
+     */
     async getAllContracts(): Promise<Contract[]> {
         return this.contractRepository.find();
     }
 
+    /**
+     * Retrieves a contract by its ID.
+     * @param id - The ID of the contract to retrieve.
+     * @returns the contract with the specified ID.
+     */
     async getContractById(id: string): Promise<Contract> {
         const contract = await this.contractRepository.findOne({ where: { id } });
         if (!contract) {
@@ -47,6 +62,12 @@ export class ContractsService{
         return contract;
     }
 
+    /**
+     * Updates a contract by its ID.
+     * @param id - The ID of the contract to update.
+     * @param contract - The updated contract data.
+     * @returns the updated contract.
+     */
     async updateContract(id: string, contract: Contract): Promise<Contract> {
         const contractExists = await this.contractRepository.findOne({ where: { id } });
         if (!contractExists) {
@@ -61,6 +82,10 @@ export class ContractsService{
         return updatedContract;
     }
 
+    /**
+     * Deletes a contract by its ID.
+     * @param id - The ID of the contract to delete.
+     */
     async deleteContract(id: string): Promise<void> {
         const contractExists = await this.contractRepository.findOne({ where: { id } });
         if (!contractExists) {
@@ -69,6 +94,11 @@ export class ContractsService{
         await this.contractRepository.delete(id);
     }
 
+    /**
+     * Retrieves contracts by user email.
+     * @param user_email - The email of the user whose contracts to retrieve.
+     * @returns an array of contracts for the specified user.
+     */
     async getContractByUserEmail(user_email: string): Promise<Contract[]> {
         const contracts = await this.contractRepository.find({ where: { user_email } });
         if (!contracts || contracts.length === 0) { // Verifica si el array está vacío
@@ -77,7 +107,11 @@ export class ContractsService{
         return contracts;
     }
 
-
+    /**
+     * Retrieves contracts by status.
+     * @param status - The status of the contracts to retrieve.
+     * @returns an array of contracts with the specified status.
+     */
     async getContractByStatus(status: string): Promise<Contract[]> {
         const contracts = await this.contractRepository.find({ where: { status } });
         if (!contracts || contracts.length === 0) { // Verifica si el array está vacío
