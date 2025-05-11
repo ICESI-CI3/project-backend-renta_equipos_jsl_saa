@@ -2,9 +2,6 @@ import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query
 import { UsersService } from './users.service';
 import { UserDTO } from './dto/user.dto';
 import { PaginationDTO } from '../common/dto/pagination.dto';
-import { RoleProtected } from '../auth/decorators/role-protected.decorator';
-import { AuthGuard } from '@nestjs/passport';
-import { UserRoleGuard } from '../auth/guards/user-role.guard';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/interfaces/valid-role';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
@@ -38,7 +35,6 @@ export class UsersController {
      * @returns The user with the specified ID.
      */
     @Get(':id')
-    @UseGuards(AuthGuard())
     @ApiOperation({ summary: 'Get user by ID' })
     @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     getById(@Param('id', ParseUUIDPipe) id: string) {
@@ -52,7 +48,7 @@ export class UsersController {
      * @returns The updated user information.
      */
     @Patch(':id')
-    @UseGuards(AuthGuard())
+
     @ApiOperation({ summary: 'Update user by ID' })
     @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     update(@Param('id', ParseUUIDPipe) id: string, @Body() user: UserDTO) {
@@ -65,7 +61,6 @@ export class UsersController {
      * @returns A confirmation of the deletion.
      */
     @Delete(':id')
-    @UseGuards(AuthGuard())
     @ApiOperation({ summary: 'Delete user by ID' })
     @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
     delete(@Param('id', ParseUUIDPipe) id: string) {
