@@ -1,3 +1,4 @@
+
 import {
   IsDateString,
   IsEmail,
@@ -27,12 +28,6 @@ class IsStartBeforeFinishConstraint implements ValidatorConstraintInterface {
 }
 
 export class CreateRequestDto {
-  @ApiProperty({
-    description: 'Identificador único de la solicitud en formato UUID',
-    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
-  })
-  @IsUUID()
-  readonly id: string;
 
   @ApiProperty({
     description: 'Correo electrónico del usuario que realiza la solicitud',
@@ -46,14 +41,14 @@ export class CreateRequestDto {
     example: '2025-05-10T08:00:00Z',
   })
   @IsDateString({})
-  readonly date_start: string;
+  readonly date_Start: Date;
 
   @ApiProperty({
     description: 'Fecha de finalización de la solicitud (ISO 8601)',
     example: '2025-05-15T18:00:00Z',
   })
   @IsDateString({})
-  readonly date_finish: string;
+  readonly date_Finish: Date;
 
   @Validate(IsStartBeforeFinishConstraint)
   validateDates: boolean; // campo auxiliar para invocar la validación personalizada
@@ -78,4 +73,5 @@ export class CreateRequestDto {
     message: 'El comentario no puede tener más de 500 caracteres',
   })
   readonly admin_comment?: string;
+
 }

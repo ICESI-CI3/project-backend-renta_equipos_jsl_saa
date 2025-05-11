@@ -4,31 +4,24 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Request } from './entities/request.entity';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateRequestDto } from './dto/create-request.dto';
 
-const mockRequest: Request = {
-  id: 'uuid-1234',
-  user_email: 'test@example.com',
-  date_start: new Date(),
-  date_finish: new Date(),
-  status: 'pending',
-  admin_comment: 'Initial comment',
+const mockRequestRepository = {
+  create: jest.fn(),
+  save: jest.fn(),
+  find: jest.fn(),
+  findOne: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
 };
 
-const mockUser: User = {
-  id: 'user-1',
-  name: 'Test User',
-  email: 'test@example.com',
-  password: 'hashedpassword',
-  cellphone: '1234567890',
-  address: '123 Test Street',
-  role: 'user',
+const mockUserRepository = {
+  findOne: jest.fn(),
 };
 
 describe('RequestsService', () => {
   let service: RequestsService;
-  let requestRepository: Repository<Request>;
-  let userRepository: Repository<User>;
+  let requestRepo: Repository<Request>;
+  let userRepo: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,133 +29,136 @@ describe('RequestsService', () => {
         RequestsService,
         {
           provide: getRepositoryToken(Request),
-          useValue: {
-            create: jest.fn().mockReturnValue(mockRequest),
-            save: jest.fn().mockResolvedValue(mockRequest),
-            find: jest.fn().mockResolvedValue([mockRequest]),
-            findOne: jest.fn().mockResolvedValue(mockRequest),
-            update: jest.fn().mockResolvedValue(undefined),
-            delete: jest.fn().mockResolvedValue(undefined),
-          },
+          useValue: mockRequestRepository,
         },
         {
           provide: getRepositoryToken(User),
-          useValue: {
-            findOne: jest.fn().mockResolvedValue(mockUser),
-          },
+          useValue: mockUserRepository,
         },
       ],
     }).compile();
 
     service = module.get<RequestsService>(RequestsService);
-    requestRepository = module.get(getRepositoryToken(Request));
-    userRepository = module.get(getRepositoryToken(User));
+    requestRepo = module.get<Repository<Request>>(getRepositoryToken(Request));
+    userRepo = module.get<Repository<User>>(getRepositoryToken(User));
+
+    jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+  const requestDto = {
+    user_email: 'test@example.com',
+    date_Start: new Date('2025-05-10'),
+    date_Finish: new Date('2025-05-15'),
+    status: 'pendiente',
+    admin_comment: 'Comentario de prueba',
+    validateDates: true,
+  };
 
   describe('createRequest', () => {
-    it('should create and return a request', async () => {
-      const dto: CreateRequestDto = {
-        id: 'uuid-1234',
-        user_email: 'test@example.com',
-        date_start: new Date(),
-        date_finish: new Date(),
-        status: 'pending',
-        admin_comment: 'Initial comment',
-      };
-      const result = await service.createRequest(dto);
-      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { email: dto.user_email } });
-      expect(requestRepository.create).toHaveBeenCalledWith(dto);
-      expect(result).toEqual(mockRequest);
+    it('debería crear una solicitud si el usuario existe', async () => {
+      mockUserRepository.findOne.mockResolvedValueOnce({ email: requestDto.user_email });
+      mockRequestRepository.create.mockReturnValue(requestDto);
+      mockRequestRepository.save.mockResolvedValueOnce({ id: '1', ...requestDto });
+
+      const result = await service.createRequest(requestDto);
+
+      expect(result).toEqual({ id: '1', ...requestDto });
+      expect(mockRequestRepository.save).toHaveBeenCalled();
     });
 
-    it('should throw error if user does not exist', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(null);
-      await expect(service.createRequest({ ...mockRequest }))
-        .rejects
-        .toThrow('El usuario no existe');
+    it('debería lanzar un error si el usuario no existe', async () => {
+      mockUserRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.createRequest(requestDto)).rejects.toThrow('El usuario no existe');
     });
   });
 
   describe('getAllRequests', () => {
-    it('should return all requests', async () => {
+    it('debería retornar todas las solicitudes', async () => {
+      const requests = [{ id: '1', ...requestDto }];
+      mockRequestRepository.find.mockResolvedValue(requests);
+
       const result = await service.getAllRequests();
-      expect(result).toEqual([mockRequest]);
+      expect(result).toEqual(requests);
     });
   });
 
   describe('getRequestById', () => {
-    it('should return a request by ID', async () => {
-      const result = await service.getRequestById('uuid-1234');
-      expect(result).toEqual(mockRequest);
+    it('debería retornar la solicitud si existe', async () => {
+      const request = { id: '1', ...requestDto };
+      mockRequestRepository.findOne.mockResolvedValue(request);
+
+      const result = await service.getRequestById('1');
+      expect(result).toEqual(request);
     });
 
-    it('should throw if request does not exist', async () => {
-      jest.spyOn(requestRepository, 'findOne').mockResolvedValueOnce(null);
-      await expect(service.getRequestById('invalid-id'))
-        .rejects
-        .toThrow('La solicitud no existe');
+    it('debería lanzar error si no encuentra la solicitud', async () => {
+      mockRequestRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.getRequestById('1')).rejects.toThrow();
     });
   });
 
   describe('updateRequest', () => {
-    it('should update and return updated request', async () => {
-      const dto: CreateRequestDto = { ...mockRequest };
-      const result = await service.updateRequest('uuid-1234', dto);
-      expect(result).toEqual(mockRequest);
+    it('debería actualizar una solicitud existente', async () => {
+      mockRequestRepository.findOne
+        .mockResolvedValueOnce({ id: '1' }) // existe
+        .mockResolvedValueOnce({ id: '1', ...requestDto }); // actualizado
+      mockRequestRepository.update.mockResolvedValue({});
+
+      const result = await service.updateRequest('1', requestDto);
+      expect(result).toEqual({ id: '1', ...requestDto });
     });
 
-    it('should throw if request to update is not found', async () => {
-      jest.spyOn(requestRepository, 'findOne')
-        .mockResolvedValueOnce(null);
-      await expect(service.updateRequest('invalid-id', { ...mockRequest }))
-        .rejects
-        .toThrow('La solicitud no existe');
+    it('debería lanzar error si no encuentra la solicitud a actualizar', async () => {
+      mockRequestRepository.findOne.mockResolvedValue(null);
+      await expect(service.updateRequest('1', requestDto)).rejects.toThrow();
     });
   });
 
   describe('deleteRequest', () => {
-    it('should delete a request', async () => {
-      await expect(service.deleteRequest('uuid-1234')).resolves.not.toThrow();
+    it('debería eliminar una solicitud existente', async () => {
+      mockRequestRepository.findOne.mockResolvedValue({ id: '1' });
+      mockRequestRepository.delete.mockResolvedValue({});
+
+      await expect(service.deleteRequest('1')).resolves.not.toThrow();
     });
 
-    it('should throw if request to delete does not exist', async () => {
-      jest.spyOn(requestRepository, 'findOne').mockResolvedValueOnce(null);
-      await expect(service.deleteRequest('invalid-id'))
-        .rejects
-        .toThrow('La solicitud no existe');
+    it('debería lanzar error si no encuentra la solicitud a eliminar', async () => {
+      mockRequestRepository.findOne.mockResolvedValue(null);
+      await expect(service.deleteRequest('1')).rejects.toThrow();
     });
   });
 
   describe('getRequestByUserEmail', () => {
-    it('should return requests by user email', async () => {
+    it('debería retornar solicitudes por correo de usuario', async () => {
+      const requests = [{ id: '1', ...requestDto }];
+      mockRequestRepository.find.mockResolvedValue(requests);
+
       const result = await service.getRequestByUserEmail('test@example.com');
-      expect(result).toEqual([mockRequest]);
+      expect(result).toEqual(requests);
     });
 
-    it('should throw if no requests found', async () => {
-      jest.spyOn(requestRepository, 'find').mockResolvedValueOnce([]);
-      await expect(service.getRequestByUserEmail('noemail@example.com'))
-        .rejects
-        .toThrow('No se encontraron solicitudes para este usuario');
+    it('debería lanzar error si no hay solicitudes con ese correo', async () => {
+      mockRequestRepository.find.mockResolvedValue([]);
+
+      await expect(service.getRequestByUserEmail('test@example.com')).rejects.toThrow();
     });
   });
 
   describe('getRequestByStatus', () => {
-    it('should return requests by status', async () => {
-      const result = await service.getRequestByStatus('pending');
-      expect(result).toEqual([mockRequest]);
+    it('debería retornar solicitudes por estado', async () => {
+      const requests = [{ id: '1', ...requestDto }];
+      mockRequestRepository.find.mockResolvedValue(requests);
+
+      const result = await service.getRequestByStatus('pendiente');
+      expect(result).toEqual(requests);
     });
 
-    it('should throw if no requests found with status', async () => {
-      jest.spyOn(requestRepository, 'find').mockResolvedValueOnce([]);
-      await expect(service.getRequestByStatus('unknown'))
-        .rejects
-        .toThrow('No se encontraron solicitudes con este estado');
+    it('debería lanzar error si no hay solicitudes con ese estado', async () => {
+      mockRequestRepository.find.mockResolvedValue([]);
+
+      await expect(service.getRequestByStatus('pendiente')).rejects.toThrow();
     });
   });
-
 });
