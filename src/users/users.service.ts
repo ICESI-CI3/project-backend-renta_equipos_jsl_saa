@@ -209,6 +209,17 @@ export class UsersService {
 
     }
 
+    /**
+     * Rejects a request and deletes it from the system.
+     *
+     * @param idRequest - The ID of the request to reject.
+     * @returns A promise that resolves when the request is rejected and deleted.
+     * @throws An error if the request does not exist.
+     *
+     * @remarks
+     * - This method updates the status of the request to 'rejected'.
+     * - It also deletes any associated devices from the request.
+     */
     async rejectRequest(idRequest: string): Promise<void> {
         const result = await this.requestRepository.findOne({ where: { id: idRequest } });
         if (!result) {

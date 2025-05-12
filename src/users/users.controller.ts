@@ -16,57 +16,6 @@ export class UsersController {
 
     constructor(private readonly usersService: UsersService) {}
 
-    /**
-     * Retrieves all users.
-     * @param pagination - Optional pagination parameters.
-     * @returns A list of all users.
-     */
-    @Get('')
-    @ApiOperation({ summary: 'Get all users' })
-    @ApiQuery({ name: 'limit', required: false, type: Number })
-    @ApiQuery({ name: 'offset', required: false, type: Number })
-    getAllUsers(@Query() pagination: PaginationDTO) {
-        return this.usersService.getAllUsers(pagination);
-    }
- 
-    /**
-     * Retrieves a user by their unique identifier.
-     * @param id - The UUID of the user to retrieve.
-     * @returns The user with the specified ID.
-     */
-    @Get(':id')
-    @ApiOperation({ summary: 'Get user by ID' })
-    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
-    getById(@Param('id', ParseUUIDPipe) id: string) {
-        return this.usersService.getUserById(id);
-    }
-
-    /**
-     * Updates a user's information.
-     * @param id - The UUID of the user to update.
-     * @param user - The updated user data.
-     * @returns The updated user information.
-     */
-    @Patch(':id')
-
-    @ApiOperation({ summary: 'Update user by ID' })
-    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
-    update(@Param('id', ParseUUIDPipe) id: string, @Body() user: UserDTO) {
-        return this.usersService.updateUser(id, user);
-    }
-
-    /**
-     * Deletes a user by their unique identifier.
-     * @param id - The UUID of the user to delete.
-     * @returns A confirmation of the deletion.
-     */
-    @Delete(':id')
-    @ApiOperation({ summary: 'Delete user by ID' })
-    @ApiParam({ name: 'id', type: 'string', description: 'UUID of the user' })
-    delete(@Param('id', ParseUUIDPipe) id: string) {
-        return this.usersService.deleteUser(id);
-    }
-
     @Patch('accept/:idRequest')
     @Auth(ValidRoles.admin, ValidRoles.superuser)
     @ApiOperation({ summary: 'Accept a request by ID' })
