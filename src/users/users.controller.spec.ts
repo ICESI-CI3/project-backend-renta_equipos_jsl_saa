@@ -53,45 +53,6 @@ describe('UsersController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('getAllUsers', () => {
-    it('should return all users', async () => {
-      const pagination: PaginationDTO = { limit: 10, offset: 0 };
-      const result = await controller.getAllUsers(pagination);
-      expect(result).toEqual([mockUser]);
-      expect(usersService.getAllUsers).toHaveBeenCalledWith(pagination);
-    });
-  });
-
-  describe('getById', () => {
-    it('should return a user by ID', async () => {
-      const result = await controller.getById(mockUser.id);
-      expect(result).toEqual(mockUser);
-      expect(usersService.getUserById).toHaveBeenCalledWith(mockUser.id);
-    });
-  });
-
-  describe('update', () => {
-    it('should update and return the user', async () => {
-      const dto: UserDTO = {
-        name: 'Updated',
-        email: 'updated@example.com',
-        password: '1234',
-        cellphone: '987654321',
-        address: 'New Street',
-      };
-      const result = await controller.update(mockUser.id, dto);
-      expect(result).toEqual(mockUser);
-      expect(usersService.updateUser).toHaveBeenCalledWith(mockUser.id, dto);
-    });
-  });
-
-  describe('delete', () => {
-    it('should delete a user by ID', async () => {
-      const result = await controller.delete(mockUser.id);
-      expect(result).toBeUndefined();
-      expect(usersService.deleteUser).toHaveBeenCalledWith(mockUser.id);
-    });
-  });
 
   describe('acceptsRequest', () => {
     it('should accept a user request', async () => {

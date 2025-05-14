@@ -3,7 +3,7 @@ import { Device } from './entities/device.entity';
 import { Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException } from 'rxjs';
+import { NotFoundException } from '@nestjs/common';
 
 const mockDeviceRepository = () => ({
   find: jest.fn(),
