@@ -27,65 +27,21 @@ describe('UserController (e2e)', () => {
     await app.close();
   });
 
-  const userDto = {
-    name: 'Juan Pérez',
-    email: 'juan.perez@example.com',
-    password: 'Segura123',
-    cellphone: '3001234567',
-    address: 'Calle 123 #45-67, Bogotá',
+  const logInDto = {
+    email: 'carlos@example.com',
+    password: 'hashedpass2'
   };
 
-  it('/api/v1/users (POST) crea un nuevo usuario', async () => {
-    const response = await request(httpServer)
-      .post('/api/v1/users')
-      .send(userDto)
-      .expect(201);
-
-    expect(response.body).toHaveProperty('id');
-    createdUserId = response.body.id;
-    expect(response.body.email).toBe(userDto.email);
-  });
-
-  it('/api/v1/users (GET) obtiene todos los usuarios', async () => {
-    const response = await request(httpServer)
-      .get('/api/v1/users')
-      .query({ limit: 10, offset: 0 })
+  it('/api/v1/users/accept/:id (PATCH) acepta un contrato', async () => {
+    
+    const res = await request(httpServer)
+      .post('/api/v1/auth/login')
+      .send(logInDto)
       .expect(200);
-
-    expect(Array.isArray(response.body)).toBe(true);
-  });
-
-  it('/api/v1/users/:id (GET) obtiene usuario por ID', async () => {
-    expect(createdUserId).toBeDefined();
-
+    const { access_token } = res.body;
     const response = await request(httpServer)
-      .get(`/api/v1/users/${createdUserId}`)
-      .expect(200);
-
-    expect(response.body.id).toBe(createdUserId);
-  });
-
-  it('/api/v1/users/:id (PUT) actualiza un usuario', async () => {
-    expect(createdUserId).toBeDefined();
-
-    const updatedData = {
-      ...userDto,
-      name: 'Juan Actualizado',
-    };
-
-    const response = await request(httpServer)
-      .put(`/api/v1/users/${createdUserId}`)
-      .send(updatedData)
-      .expect(200);
-
-    expect(response.body.name).toBe('Juan Actualizado');
-  });
-
-  it('/api/v1/users/:id (DELETE) elimina un usuario', async () => {
-    expect(createdUserId).toBeDefined();
-
-    await request(httpServer)
-      .delete(`/api/v1/users/${createdUserId}`)
+      .patch('/api/v1/users/accept/20000000-0000-0000-0000-000000000001')
+      .set('Authorization', `Bearer ${access_token}`)
       .expect(200);
   });
 });

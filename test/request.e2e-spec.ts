@@ -34,6 +34,8 @@ describe('RequestsController (e2e)', () => {
       name: 'Usuario Prueba',
       email: 'usuario@example.com',
       password: 'securePass123',
+      cellphone: '1234567890',
+      address: '123 Test St',
       createdAt: new Date(),
       updatedAt: new Date(),
     });

@@ -56,12 +56,23 @@ describe('DevicesController (e2e)', () => {
     expect(response.body.name).toBe(deviceName);
   });
 
+  const logInDto = {
+    email: 'carlos@example.com',
+    password: 'hashedpass2'
+  };
+
   it('PATCH /api/v1/devices/:id - actualiza un dispositivo', async () => {
     const updatedData = { ...mockDevice, description: 'Actualizado' };
 
+    const res = await request(app.getHttpServer())
+          .post('/api/v1/auth/login')
+          .send(logInDto)
+          .expect(200);
+
+    const { access_token } = res.body;
     const response = await request(app.getHttpServer())
       .patch(`/api/v1/devices/${createdDeviceId}`)
-      .set('Authorization', `Bearer ADMIN_TOKEN`) // reemplaza si usas Auth
+      .set('Authorization', `Bearer ${access_token}`)
       .send(updatedData)
       .expect(200);
 
@@ -77,9 +88,17 @@ describe('DevicesController (e2e)', () => {
   });
 
   it('DELETE /api/v1/devices/:id - elimina dispositivo', async () => {
+    
+    const res = await request(app.getHttpServer())
+          .post('/api/v1/auth/login')
+          .send(logInDto)
+          .expect(200);
+
+    const { access_token } = res.body;
+    
     await request(app.getHttpServer())
       .delete(`/api/v1/devices/${createdDeviceId}`)
-      .set('Authorization', `Bearer ADMIN_TOKEN`) // reemplaza si usas Auth
+      .set('Authorization', `Bearer ${access_token}`) // reemplaza si usas Auth
       .expect(200);
   });
 
