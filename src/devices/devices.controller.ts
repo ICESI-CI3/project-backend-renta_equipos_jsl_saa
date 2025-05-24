@@ -26,7 +26,7 @@ export class DevicesController {
      * @param id - The ID of the device to retrieve.
      * @returns - A promise that resolves to the device with the specified ID.
      */
-    @Get(':id')
+    @Get('by-id/:id')
     @ApiOperation({ summary: 'Obtiene un dispositivo por su ID' })
     @ApiResponse({ status: 200, description: 'Dispositivo encontrado' })
     @ApiResponse({ status: 404, description: 'Dispositivo no encontrado' })
@@ -85,4 +85,32 @@ export class DevicesController {
     getStock(@Param('name') name: string) {
         return this.devicesService.getStock(name);
     }
+
+
+    @Get('by-name/:name')
+    @ApiOperation({ summary: 'Obtiene un dispositivo por su nombre' })
+    @ApiResponse({ status: 200, description: 'Dispositivo encontrado' })
+    @ApiResponse({ status: 404, description: 'Dispositivo no encontrado' })
+    getByName(@Param('name') name: string) {
+        return this.devicesService.getDeviceByName(name);
+    }
+
+    @Get('by-type/:type')
+    @ApiOperation({ summary: 'Obtiene dispositivos por su tipo' })
+    @ApiResponse({ status: 200, description: 'Dispositivos encontrados' })
+    @ApiResponse({ status: 404, description: 'No se encontraron dispositivos de este tipo' })
+    getByType(@Param('type') type: string) {
+        return this.devicesService.getDeviceByType(type);
+    }
+
+    @Get('by-status/:status')
+    @ApiOperation({ summary: 'Obtiene dispositivos por su estado' })
+    @ApiResponse({ status: 200, description: 'Dispositivos encontrados' })
+    @ApiResponse({ status: 404, description: 'No se encontraron dispositivos de este estado' })
+    getByStatus(@Param('status') status: string) {
+        return this.devicesService.getDeviceByStatus(status);
+    }
+
+
+
 }

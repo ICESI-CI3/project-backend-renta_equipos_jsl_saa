@@ -95,12 +95,12 @@ export class DevicesService {
      * @param name - The name of the device to filter by.
      * @returns - An array of devices with the specified name.
      */
-    async getDeviceByName(name: string): Promise<Device> {
-        const device = await this.deviceRepository.findOne({ where: { name } });
-        if (!device) {
-            throw new NotFoundException('El dispositivo no existe');
+    async getDeviceByName(name: string): Promise<Device[]> {
+        const devices = await this.deviceRepository.find({ where: { name } });
+        if (!devices || devices.length === 0) {
+            throw new NotFoundException('No existen dispositivos con ese nombre');
         }
-        return device;
+        return devices;
     }
 
     /**
