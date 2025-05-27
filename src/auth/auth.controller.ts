@@ -53,7 +53,6 @@ export class AuthController {
    * @returns A list of all users.
    */
   @Get('')
-  @Auth(ValidRoles.admin, ValidRoles.superuser)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios' })

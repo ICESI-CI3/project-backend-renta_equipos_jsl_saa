@@ -23,7 +23,20 @@ export class DevicesService {
         });
       
         if (existingDevice) {
-          throw new Error('El dispositivo ya existe');
+            const baseDeviceDto = {
+                name: existingDevice.name,
+                description: existingDevice.description,
+                type: existingDevice.type,
+                status: existingDevice.status,
+                owner: existingDevice.owner,
+                image: existingDevice.image
+            };
+            
+            for(let i = 0; i < stock; i++) {
+                const newDevice = this.deviceRepository.create(baseDeviceDto);
+                await this.deviceRepository.save(newDevice);
+            }
+            return 'Device stock updated successfully'; 
         }
       
         for (let i = 0; i < stock; i++) {
