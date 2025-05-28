@@ -119,6 +119,17 @@ export class UsersService {
         return user;
     }
 
+    async getUserRoleByEmail(email: string): Promise<string> {
+        const user = await this.userRepository.findOne({ 
+            where: { email },
+            select: ['role'] 
+        });
+        if (!user) {
+            throw new NotFoundException('El usuario no existe');
+        }
+        return user.role;
+    }
+
     /**
      * Updates an existing user's information.
      *

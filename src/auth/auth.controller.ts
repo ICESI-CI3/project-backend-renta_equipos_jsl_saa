@@ -112,6 +112,23 @@ export class AuthController {
       return this.usersService.deleteUser(id);
   }
 
+  /**
+   * Retrieves a user by their email address.
+   * @param email - The email of the user to retrieve.
+   * @returns The user with the specified email.
+   */ 
+
+  @Get('email-role/:email')
+  @ApiOperation({ summary: 'Obtener rol de usuario por email' })
+  @ApiResponse({ status: 200, description: 'Rol de usuario encontrado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiParam({ name: 'email', description: 'Email del usuario' })
+  getUserRoleByEmail(@Param('email') email: string) {
+      return this.usersService.getUserRoleByEmail(email);
+  }
+
+  
+
 
 
 }
