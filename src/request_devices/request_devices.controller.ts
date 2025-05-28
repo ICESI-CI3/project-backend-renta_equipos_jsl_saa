@@ -44,7 +44,7 @@ export class RequestDevicesController {
    * @param id - The ID of the request device to retrieve.
    * @returns - A promise that resolves to the request device with the specified ID.
    */
-  @Get(':id')
+  @Get('by-id/:id')
   @ApiOperation({ summary: 'Obtener solicitud de dispositivo por ID' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
   @ApiResponse({ status: 200, description: 'Solicitud encontrada', type: RequestDevice })
@@ -87,7 +87,7 @@ export class RequestDevicesController {
    * @param user_email - The email of the user whose request devices to retrieve.
    * @returns - A promise that resolves to an array of request devices for the specified user email.
    */
-  @Get(':deviceName')
+  @Get('by-deviceName/:deviceName')
   @ApiOperation({ summary: 'Buscar solicitudes por nombre del dispositivo' })
   @ApiParam({ name: 'deviceName', type: 'string', example: 'Laptop HP ProBook' })
   @ApiResponse({
@@ -98,4 +98,19 @@ export class RequestDevicesController {
   async getRequestDevicesByDeviceName(@Param('deviceName') deviceName: string): Promise<RequestDevice[]> {
     return this.requestDevicesService.getRequestDevicesByDeviceName(deviceName);
   }
+
+
+  @Get('by-requestId/:requestId')
+  @ApiOperation({ summary: 'Buscar solicitudes por ID de solicitud' })
+  @ApiParam({ name: 'requestId', type: 'string', format: 'uuid' })
+  @ApiResponse({
+    status: 200,
+    description: 'Solicitudes filtradas por ID de solicitud',
+    type: [RequestDevice],
+  })
+  async getRequestDevicesByRequestId(@Param('requestId', ParseUUIDPipe) requestId: string): Promise<RequestDevice[]> {
+    return this.requestDevicesService.getRequestDevicesByRequestId(requestId);
+  }
+
+  
 }

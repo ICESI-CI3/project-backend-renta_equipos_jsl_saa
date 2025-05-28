@@ -78,7 +78,7 @@ export class RequestsController {
      * @param user_email - The email of the user whose requests to retrieve.
      * @returns - A promise that resolves to an array of requests for the specified user email.
      */
-    @Get(":user_email")
+    @Get("by-user_email/:user_email")
     @ApiOperation({ summary: "Obtener solicitudes por correo del usuario" })
     @ApiParam({ name: "user_email", description: "Correo del usuario" })
     @ApiResponse({ status: 200, description: "Lista de solicitudes del usuario" })

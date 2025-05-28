@@ -206,4 +206,28 @@ export class RequestDevicesService {
             );
         }
     }
+
+    async getRequestDevicesByRequestId(request_id: string): Promise<RequestDevice[]> {
+        try {
+            const requestDevices = await this.requestDeviceRepository.find({ 
+                where: { request_id } 
+            });
+            
+            if (!requestDevices || requestDevices.length === 0) {
+                throw new NotFoundException('No existen solicitudes de equipos para esta solicitud');
+            }
+            
+            return requestDevices;
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(
+                'Error al obtener solicitudes por ID de solicitud',
+                error.message
+            );
+        }
+    }
+
+    
 }
