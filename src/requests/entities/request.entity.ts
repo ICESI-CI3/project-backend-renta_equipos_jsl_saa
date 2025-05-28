@@ -8,11 +8,11 @@ export class Request {
    @Column('text')
     user_email: string;
 
-    @Column('date')
-    date_start: Date;
+    @Column('text')
+    date_start: string;
 
-    @Column('date')
-    date_finish: Date;
+    @Column('text')
+    date_finish: string;
 
     @Column('text')
     status: string;

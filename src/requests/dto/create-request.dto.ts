@@ -1,4 +1,3 @@
-
 import {
   IsDateString,
   IsEmail,
@@ -13,20 +12,21 @@ import {
   ValidationArguments,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-/*
+
 @ValidatorConstraint({ name: 'IsStartBeforeFinish', async: false })
-class IsStartBeforeFinishConstraint implements ValidatorConstraintInterface {
+export class IsStartBeforeFinishConstraint implements ValidatorConstraintInterface {
   validate(_: any, args: ValidationArguments) {
     const obj = args.object as any;
-    if (!obj.date_Start || !obj.date_Finish) return true; // se validan por separado
-    return new Date(obj.date_Start) < new Date(obj.date_Finish);
+    if (!obj.date_Start || !obj.date_Finish) return true;
+    // Parse string dates and compare
+    return new Date(obj.date_Start).getTime() < new Date(obj.date_Finish).getTime();
   }
 
   defaultMessage(args: ValidationArguments) {
     return `La fecha de inicio (date_Start) debe ser anterior a la fecha de finalización (date_Finish).`;
   }
 }
-*/
+
 export class CreateRequestDto {
 
   @ApiProperty({
@@ -40,19 +40,21 @@ export class CreateRequestDto {
     description: 'Fecha de inicio de la solicitud (ISO 8601)',
     example: '2025-05-10T08:00:00Z',
   })
-  @IsDateString()
-  readonly date_Start: Date;
+  @IsString()
+  readonly date_Start: string;
 
   @ApiProperty({
     description: 'Fecha de finalización de la solicitud (ISO 8601)',
     example: '2025-05-15T18:00:00Z',
   })
-  @IsDateString()
-  readonly date_Finish: Date;
-/*
-  @Validate(IsStartBeforeFinishConstraint)
+  @IsString()
+  readonly date_Finish: string;
+
+  @Validate(IsStartBeforeFinishConstraint, {
+    message: 'La fecha de inicio (date_Start) debe ser anterior a la fecha de finalización (date_Finish).'
+  })
   validateDates: boolean; // campo auxiliar para invocar la validación personalizada
-*/
+
   @ApiProperty({
     description: 'Estado de la solicitud (pendiente, aprobada, rechazada)',
     example: 'pendiente',

@@ -20,7 +20,7 @@ import { DatabaseService } from './database/database.service';
     ConfigModule.forRoot({isGlobal: true}),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DB_HOST,
+      url: process.env.DATABASE_URL,
       synchronize: true, //Only on development
       autoLoadEntities: true, // Automatically load entities
     }),

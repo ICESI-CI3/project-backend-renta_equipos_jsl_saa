@@ -27,15 +27,15 @@ export class CreateContractDto {
     description: 'Fecha de inicio del contrato',
     example: '2025-05-01T00:00:00.000Z',
     })
-    @IsDate()
-    readonly date_start: Date;
+    @IsString()
+    readonly date_start: string;
 
     @ApiProperty({
     description: 'Fecha de finalización del contrato',
     example: '2025-12-31T00:00:00.000Z',
     })
-    @IsDate()
-    readonly date_finish: Date;
+    @IsString()
+    readonly date_finish: string;
 
     @ApiProperty({
     description: 'Estado del contrato',

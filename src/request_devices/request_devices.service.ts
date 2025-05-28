@@ -37,29 +37,29 @@ export class RequestDevicesService {
      * - Updates device status to 'Pedido' (Requested) for each associated device
      * - Creates one RequestDevice record per device
      */
-    async createRequestDevice(requestDevice: CreateRequestDeviceDto, quantity: number): Promise<String> {
-        const devicesAvailable = await this.deviceRepository.find({
+    async createRequestDevice(requestDevice: CreateRequestDeviceDto): Promise<String> {
+        // Verifica si hay dispositivos disponibles con ese nombre
+        const device = await this.deviceRepository.findOne({
             where: { name: requestDevice.device_name, status: 'Disponible' },
         });
-    
-        if (devicesAvailable.length < quantity) {
-            throw new BadRequestException(
-                `No hay suficientes dispositivos disponibles con el nombre "${requestDevice.device_name}". ` +
-                `Se encontraron ${devicesAvailable.length}, pero se necesitan ${quantity}.`
-            );
+        if (!device) {
+            throw new BadRequestException("No hay dispositivos disponibles para este nombre");
         }
-    
-        for (let i = 0; i < quantity; i++) {
-            const device = devicesAvailable[i];
-            const newRequestDevice = this.requestDeviceRepository.create({
-                request_id: requestDevice.request_id,
-                device_id: device.id,
-                device_name: requestDevice.device_name,
-            });
-            await this.requestDeviceRepository.save(newRequestDevice);
+        // Verifica si la solicitud existe
+        const requestExists = await this.requestRepository.findOne({
+            where: { id: requestDevice.request_id }
+        });
+        if (!requestExists) {
+            throw new BadRequestException("La solicitud no existe");
         }
-    
-        return "Dispositivos solicitados correctamente";
+        // Crea la asociación request-device solo para un dispositivo
+        const newRequestDevice = this.requestDeviceRepository.create({
+            request_id: requestDevice.request_id,
+            device_id: device.id,
+            device_name: device.name,
+        });
+        await this.requestDeviceRepository.save(newRequestDevice);
+        return "Dispositivo solicitado correctamente";
     }
 
     /**

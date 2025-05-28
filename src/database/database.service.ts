@@ -8,7 +8,7 @@ export class DatabaseService {
     private readonly sql;
 
     constructor(private configService: ConfigService) {
-        const databaseUrl = this.configService.get('DB_HOST');
+        const databaseUrl = this.configService.get('DATABASE_URL');
         this.sql = neon(databaseUrl);
     }
         async getData() {

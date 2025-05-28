@@ -10,21 +10,18 @@ export class RequestDevicesController {
   constructor(private readonly requestDevicesService: RequestDevicesService) {}
 
   /**
-   * Creates a new request device with a specific quantity.
-   * @param quantity - The quantity of devices requested.
+   * Creates a new request device association (one device per call).
    * @param requestDeviceDto - The request device data transfer object containing the details of the request.
    * @returns - A promise that resolves to a string indicating the request was created successfully.
    */
-  @Post(":quantity")
-  @ApiOperation({ summary: 'Crear solicitud de dispositivo con cantidad específica' })
-  @ApiParam({ name: 'quantity', type: Number, example: 3 })
+  @Post()
+  @ApiOperation({ summary: 'Crear solicitud de dispositivo (uno por llamada)' })
   @ApiBody({ type: CreateRequestDeviceDto })
   @ApiResponse({ status: 201, description: 'Solicitud creada correctamente', type: String })
   createRequestDevice(
-    @Param('quantity') quantity: number,
     @Body() requestDeviceDto: CreateRequestDeviceDto,
   ): Promise<String> {
-    return this.requestDevicesService.createRequestDevice(requestDeviceDto, Number(quantity));
+    return this.requestDevicesService.createRequestDevice(requestDeviceDto);
   }
 
   /**

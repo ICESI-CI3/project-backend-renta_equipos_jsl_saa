@@ -6,16 +6,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000', // Next.js default
+      'http://localhost:3001', // Otra posible URL
+      process.env.NEXT_PUBLIC_BACKEND_URL?.replace('/api', '') // Asegura que el frontend pueda acceder
+    ].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
-  
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001', // Cambia esto a la URL de tu frontend
-    credentials: true, // Permite el envío de cookies y encabezados de autorización
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  })
 
   const config = new DocumentBuilder()
     .setTitle('API de gestión de dispositivos')

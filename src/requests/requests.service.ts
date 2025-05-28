@@ -23,7 +23,14 @@ export class RequestsService {
         throw new Error("El usuario no existe");
         }
 
-        let newRequest = await this.requestRepository.create(request);
+        // Map DTO fields to entity fields (handle case differences)
+        const newRequest = this.requestRepository.create({
+            user_email: request.user_email,
+            date_start: request.date_Start, // map camelCase to snake_case
+            date_finish: request.date_Finish,
+            status: request.status,
+            admin_comment: request.admin_comment ?? '',
+        });
         return this.requestRepository.save(newRequest);
     }
 

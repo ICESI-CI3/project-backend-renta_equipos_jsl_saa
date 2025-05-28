@@ -37,13 +37,12 @@ describe('RequestDevicesController', () => {
   describe('createRequestDevice', () => {
     it('should call service.createRequestDevice and return the result', async () => {
       const requestDeviceDto: CreateRequestDeviceDto = {device_name: 'Device1', request_id: 'request-id' };
-      const quantity = 2;
-      const result: String = "Dispositivos solicitados correctamente";
+      const result: String = "Dispositivo solicitado correctamente";
 
       jest.spyOn(service, 'createRequestDevice').mockResolvedValue(result);
 
-      expect(await controller.createRequestDevice(quantity, requestDeviceDto)).toEqual(result);
-      expect(service.createRequestDevice).toHaveBeenCalledWith(requestDeviceDto, quantity);
+      expect(await controller.createRequestDevice(requestDeviceDto)).toEqual(result);
+      expect(service.createRequestDevice).toHaveBeenCalledWith(requestDeviceDto);
     });
   });
 
