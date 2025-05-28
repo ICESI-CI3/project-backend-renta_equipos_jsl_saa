@@ -156,6 +156,14 @@ export class DevicesService {
     
         return count;
     }
+
+    async deleteAllDevices(): Promise<void> {
+        const devices = await this.deviceRepository.find();
+        if (devices.length === 0) {
+            throw new NotFoundException('No existen dispositivos para eliminar');
+        }
+        await this.deviceRepository.clear();
+    }
     
    
 

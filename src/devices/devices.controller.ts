@@ -111,6 +111,14 @@ export class DevicesController {
         return this.devicesService.getDeviceByStatus(status);
     }
 
+    @Delete()
+    @ApiOperation({ summary: 'Elimina todos los dispositivos' })
+    @ApiResponse({ status: 200, description: 'Todos los dispositivos eliminados exitosamente' })
+    @ApiResponse({ status: 404, description: 'No se encontraron dispositivos para eliminar' })
+    deleteAll() {
+        return this.devicesService.deleteAllDevices();
+    }
+
 
 
 }

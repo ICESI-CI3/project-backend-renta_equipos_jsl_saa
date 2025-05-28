@@ -4,6 +4,7 @@ import { RequestDevicesController } from "./request_devices.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { RequestDevice } from "./entities/request_device.entity";
 import { Device } from "../devices/entities/device.entity";
+import { Request } from "../requests/entities/request.entity";
 
 @Module({
     providers: [RequestDevicesService],
