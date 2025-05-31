@@ -25,7 +25,7 @@ import {
      * @param dto - The contract device data transfer object.
      * @returns - A promise that resolves to a string indicating the result of the operation.
      */
-    @Post(":quantity")
+    @Post("by-quantity/:quantity")
     @ApiOperation({ summary: 'Crear una asignación de dispositivo a contrato' })
     @ApiParam({ name: 'quantity', type: Number, description: 'Cantidad de dispositivos a registrar' })
     @ApiBody({ type: CreateContractDeviceDto })
@@ -92,7 +92,7 @@ import {
      * @param device_name - The name of the device to filter by.
      * @returns - A promise that resolves to an array of contract devices for the specified device name.
      */
-    @Get(":deviceName")
+    @Get("by-device/:deviceName")
     @ApiOperation({ summary: 'Obtener dispositivos de contrato por nombre de dispositivo' })
     @ApiParam({ name: 'deviceName', type: 'string', description: 'Nombre del dispositivo' })
     async getContractDevicesByDeviceName(
@@ -100,5 +100,21 @@ import {
     ): Promise<ContractDevice[]> {
       return this.service.getContractDevicesByDeviceName(device_name);
     }
+
+    /**
+     * Retrieves contract devices by contract ID.
+     * @param contract_id - The ID of the contract to filter by.
+     * @returns - A promise that resolves to an array of contract devices for the specified contract ID.
+     */
+
+    @Get("by-contract/:contract_id")
+    @ApiOperation({ summary: 'Obtener dispositivos de contrato por ID de contrato' })
+    @ApiParam({ name: 'contract_id', type: 'string', description: 'ID del contrato' })
+    async getContractDevicesByContractId(
+      @Param("contract_id", ParseUUIDPipe) contract_id: string
+    ): Promise<ContractDevice[]> {
+      return this.service.getContractDevicesByContractId(contract_id);
+    }
+    
   }
   

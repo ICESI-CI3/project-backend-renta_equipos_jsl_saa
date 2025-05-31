@@ -17,7 +17,7 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Patch('accept/:idRequest')
-    @Auth(ValidRoles.admin, ValidRoles.superuser)
+    //@Auth(ValidRoles.admin, ValidRoles.superuser)
     @ApiOperation({ summary: 'Accept a request by ID' })
     @ApiParam({ name: 'idRequest', type: 'string', description: 'UUID of the request to accept' })
     acceptsRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
@@ -25,7 +25,7 @@ export class UsersController {
     }
 
     @Patch('reject/:idRequest')
-    @Auth(ValidRoles.admin, ValidRoles.superuser)
+    //@Auth(ValidRoles.admin, ValidRoles.superuser)
     @ApiOperation({ summary: 'Reject a request by ID' })
     @ApiParam({ name: 'idRequest', type: 'string', description: 'UUID of the request to reject' })
     rejectRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {

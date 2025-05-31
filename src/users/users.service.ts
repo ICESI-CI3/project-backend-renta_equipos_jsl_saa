@@ -183,6 +183,23 @@ export class UsersService {
         if (!result) {
             throw new NotFoundException('La solicitud no existe');
         }
+
+        const requestDevices = await this.request_deviceRepository.find({ where: { request_id: result.id } });
+        if (!requestDevices || requestDevices.length === 0) {
+            throw new NotFoundException('No hay dispositivos asociados a esta solicitud');
+        }
+
+        for (const requestDevice of requestDevices) {
+            const device = await this.deviceRepository.findOne({ where: { id: requestDevice.device_id } });
+            if (!device) {
+                throw new NotFoundException(`El dispositivo con ID ${requestDevice.device_id} no existe`);
+            }
+            if (device.status !== 'Disponible') {
+                throw new InternalServerErrorException(`El dispositivo ${device.name} no está disponible para alquilar`);
+            }
+        }
+
+        
         this.requestRepository.update(idRequest, { status: 'accepted' });
 
         const user = await this.userRepository.findOne({ where: { email: result.user_email } });
@@ -202,8 +219,7 @@ export class UsersService {
 
         const saveContract = await this.contractRepository.save(newContract);
 
-        const requestDevices = await this.request_deviceRepository.find({ where: { request_id: result.id } });
-
+        
         if (requestDevices && requestDevices.length > 0) {
             for (const requestDevice of requestDevices) {
                 await this.contract_deviceRepository.save({

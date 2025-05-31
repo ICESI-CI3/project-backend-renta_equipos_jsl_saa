@@ -125,4 +125,12 @@ export class ContractDevicesService {
     }
     return results;
   }
+
+  async getContractDevicesByContractId(contract_id: string): Promise<ContractDevice[]> {
+    const results = await this.contractDeviceRepository.find({ where: { contract_id } });
+    if (!results.length) {
+      throw new NotFoundException("No hay contratos con ese ID");
+    }
+    return results;
+  }
 }

@@ -48,7 +48,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
      * @param id - The UUID of the contract to retrieve.
      * @returns The contract with the specified ID.
      */
-    @Get(":id")
+    @Get("by-id/:id")
     @ApiOperation({ summary: 'Obtener un contrato por su ID' })
     @ApiParam({ name: 'id', type: 'string', description: 'UUID del contrato' })
     async getContractById(@Param('id') id: string): Promise<Contract> {
@@ -102,7 +102,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
      * @param email - The email of the user to retrieve contracts for.
      * @returns A list of contracts associated with the specified user email.
      */
-    @Get(':email')
+    @Get('by-email/:email')
     @ApiOperation({ summary: 'Obtener contratos por correo del usuario' })
     @ApiParam({ name: 'email', type: 'string', description: 'Correo electrónico del usuario' })
     async getContractsByUserEmail(
@@ -121,7 +121,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
      * @returns A list of contracts with the specified status.
      */
      // @Auth(ValidRoles.admin, ValidRoles.superuser)
-    @Get(':status')
+    @Get('by-status/:status')
     @ApiOperation({ summary: 'Obtener contratos por estado' })
     @ApiParam({ name: 'status', type: 'string', description: 'Estado del contrato (ej. Activo)' })
     async getContractsByStatus(
