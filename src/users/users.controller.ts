@@ -31,4 +31,13 @@ export class UsersController {
     rejectRequest(@Param('idRequest', ParseUUIDPipe) idRequest: string) {
         return this.usersService.rejectRequest(idRequest);
     }
+
+    @Patch('end-contract/:idContract')
+    //@Auth(ValidRoles.admin, ValidRoles.superuser)
+    @ApiOperation({ summary: 'Finalizar un contrato y liberar dispositivos' })
+    @ApiParam({ name: 'idContract', type: 'string', description: 'UUID del contrato a finalizar' })
+    async endContract(@Param('idContract', ParseUUIDPipe) idContract: string) {
+        await this.usersService.endContract(idContract);
+        return { message: 'Contrato finalizado correctamente' };
+    }
 }

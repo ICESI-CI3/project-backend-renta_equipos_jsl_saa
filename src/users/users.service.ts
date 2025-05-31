@@ -230,6 +230,7 @@ export class UsersService {
                 });
 
                 await this.deviceRepository.update(requestDevice.device_id, { status: 'rentado' });
+                await this.deviceRepository.update(requestDevice.device_id, { owner: user.email });
             }
         }
         
@@ -261,6 +262,25 @@ export class UsersService {
         }
 
         await this.requestRepository.delete(idRequest);
+    }
+
+    async endContract(idContract: string): Promise<void> {
+        const contract = await this.contractRepository.findOne({ where: { id: idContract } });
+        if (!contract) {
+            throw new NotFoundException('El contrato no existe');
+        }
+
+        const contractDevices = await this.contract_deviceRepository.find({ where: { contract_id: contract.id } });
+        if (contractDevices && contractDevices.length > 0) {
+            for (const contractDevice of contractDevices) {
+                await this.contract_deviceRepository.delete(contractDevice.id);
+                await this.deviceRepository.update(contractDevice.device_id, { status: 'Disponible' });
+                await this.deviceRepository.update(contractDevice.device_id, { owner: 'admin@gmail.com' });
+            }
+        }
+
+        this.contractRepository.update(idContract, { status: 'finalizado' });
+
     }
 
 
