@@ -47,7 +47,7 @@ describe('RequestsService', () => {
 
   const requestDto = {
     user_email: 'test@example.com',
-    date_Start: new Date('2025-05-10'),
+    date_start: new Date('2025-05-10'),
     date_Finish: new Date('2025-05-15'),
     status: 'pendiente',
     admin_comment: 'Comentario de prueba',

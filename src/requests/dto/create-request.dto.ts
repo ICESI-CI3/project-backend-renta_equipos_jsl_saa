@@ -17,13 +17,13 @@ import { ApiProperty } from '@nestjs/swagger';
 export class IsStartBeforeFinishConstraint implements ValidatorConstraintInterface {
   validate(_: any, args: ValidationArguments) {
     const obj = args.object as any;
-    if (!obj.date_Start || !obj.date_Finish) return true;
+    if (!obj.date_start || !obj.date_Finish) return true;
     // Parse string dates and compare
-    return new Date(obj.date_Start).getTime() < new Date(obj.date_Finish).getTime();
+    return new Date(obj.date_start).getTime() < new Date(obj.date_Finish).getTime();
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `La fecha de inicio (date_Start) debe ser anterior a la fecha de finalización (date_Finish).`;
+    return `La fecha de inicio (date_start) debe ser anterior a la fecha de finalización (date_Finish).`;
   }
 }
 
@@ -41,7 +41,7 @@ export class CreateRequestDto {
     example: '2025-05-10T08:00:00Z',
   })
   @IsString()
-  readonly date_Start: string;
+  readonly date_start: string;
 
   @ApiProperty({
     description: 'Fecha de finalización de la solicitud (ISO 8601)',
@@ -51,7 +51,7 @@ export class CreateRequestDto {
   readonly date_Finish: string;
 
   @Validate(IsStartBeforeFinishConstraint, {
-    message: 'La fecha de inicio (date_Start) debe ser anterior a la fecha de finalización (date_Finish).'
+    message: 'La fecha de inicio (date_start) debe ser anterior a la fecha de finalización (date_Finish).'
   })
   validateDates: boolean; // campo auxiliar para invocar la validación personalizada
 

@@ -19,7 +19,7 @@ describe('RequestsController', () => {
 
   const validDto: CreateRequestDto = {
     user_email: 'usuario@example.com',
-    date_Start: new Date('2025-05-10T08:00:00Z'),
+    date_start: new Date('2025-05-10T08:00:00Z'),
     date_Finish: new Date('2025-05-15T18:00:00Z'),
     validateDates: true,
     status: 'pendiente',

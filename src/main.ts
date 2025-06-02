@@ -7,9 +7,9 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000', // Next.js default
-      'http://localhost:3001', // Otra posible URL
-      process.env.NEXT_PUBLIC_BACKEND_URL?.replace('/api', '') // Asegura que el frontend pueda acceder
+      'http://localhost:3000', 
+      'http://localhost:3001', 
+      process.env.NEXT_PUBLIC_BACKEND_URL?.replace('/api', '') || 'http://localhost:3000',
     ].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

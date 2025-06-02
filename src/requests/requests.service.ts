@@ -26,7 +26,7 @@ export class RequestsService {
         // Map DTO fields to entity fields (handle case differences)
         const newRequest = this.requestRepository.create({
             user_email: request.user_email,
-            date_start: request.date_Start, // map camelCase to snake_case
+            date_start: request.date_start, // map camelCase to snake_case
             date_finish: request.date_Finish,
             status: request.status,
             admin_comment: request.admin_comment ?? '',

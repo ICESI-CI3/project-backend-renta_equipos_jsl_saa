@@ -468,7 +468,7 @@ export class Request {
 ```typescript
 @Validate(IsStartBeforeFinishConstraint) // Fecha inicio < fecha fin
 @IsEmail() user_email: string;
-@IsDateString() date_Start: Date;
+@IsDateString() date_start: Date;
 @IsDateString() date_Finish: Date;
 @IsIn(['pendiente', 'aprobada', 'rechazada']) status: string;
 ```
