@@ -179,6 +179,7 @@ describe('UsersService', () => {
       requestDeviceRepository.find = jest.fn().mockResolvedValue([{ device_id: 'dev-1', device_name: 'Device 1' }]);
       contractDeviceRepository.save = jest.fn();
       deviceRepository.update = jest.fn();
+      deviceRepository.findOne = jest.fn().mockResolvedValue({ id: 'dev-1', name: 'Device 1', status: 'Disponible' });
 
       await service.acceptRequest('req-1');
 
@@ -196,6 +197,26 @@ describe('UsersService', () => {
       userRepository.findOne = jest.fn().mockResolvedValue(null);
 
       await expect(service.acceptRequest('req-1')).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw if no request devices found', async () => {
+      requestRepository.findOne = jest.fn().mockResolvedValue({ id: 'req-1', user_email: mockUser.email });
+      requestDeviceRepository.find = jest.fn().mockResolvedValue([]);
+      await expect(service.acceptRequest('req-1')).rejects.toThrow('No hay dispositivos asociados a esta solicitud');
+    });
+
+    it('should throw if a device in request is not found', async () => {
+      requestRepository.findOne = jest.fn().mockResolvedValue({ id: 'req-1', user_email: mockUser.email });
+      requestDeviceRepository.find = jest.fn().mockResolvedValue([{ device_id: 'dev-1', device_name: 'Device 1' }]);
+      deviceRepository.findOne = jest.fn().mockResolvedValue(null);
+      await expect(service.acceptRequest('req-1')).rejects.toThrow('El dispositivo con ID dev-1 no existe');
+    });
+
+    it('should throw if a device in request is not available', async () => {
+      requestRepository.findOne = jest.fn().mockResolvedValue({ id: 'req-1', user_email: mockUser.email });
+      requestDeviceRepository.find = jest.fn().mockResolvedValue([{ device_id: 'dev-1', device_name: 'Device 1' }]);
+      deviceRepository.findOne = jest.fn().mockResolvedValue({ id: 'dev-1', name: 'Device 1', status: 'NoDisponible' });
+      await expect(service.acceptRequest('req-1')).rejects.toThrow('El dispositivo Device 1 no está disponible para alquilar');
     });
   });
 
@@ -216,6 +237,38 @@ describe('UsersService', () => {
       requestRepository.findOne = jest.fn().mockResolvedValue(null);
 
       await expect(service.rejectRequest('req-1')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('endContract', () => {
+    it('should end a contract and update devices', async () => {
+      const contractId = 'contract-1';
+      const contract = { id: contractId };
+      const contractDevices = [
+        { id: 'cd1', device_id: 'dev1' },
+        { id: 'cd2', device_id: 'dev2' },
+      ];
+      contractRepository.findOne = jest.fn().mockResolvedValue(contract);
+      contractDeviceRepository.find = jest.fn().mockResolvedValue(contractDevices);
+      contractDeviceRepository.delete = jest.fn();
+      deviceRepository.update = jest.fn();
+      contractRepository.update = jest.fn();
+
+      await service.endContract(contractId);
+
+      expect(contractRepository.findOne).toHaveBeenCalledWith({ where: { id: contractId } });
+      expect(contractDeviceRepository.find).toHaveBeenCalledWith({ where: { contract_id: contractId } });
+      expect(contractDeviceRepository.delete).toHaveBeenCalledTimes(2);
+      expect(deviceRepository.update).toHaveBeenCalledWith('dev1', { status: 'Disponible' });
+      expect(deviceRepository.update).toHaveBeenCalledWith('dev1', { owner: 'admin@gmail.com' });
+      expect(deviceRepository.update).toHaveBeenCalledWith('dev2', { status: 'Disponible' });
+      expect(deviceRepository.update).toHaveBeenCalledWith('dev2', { owner: 'admin@gmail.com' });
+      expect(contractRepository.update).toHaveBeenCalledWith(contractId, { status: 'finalizado' });
+    });
+
+    it('should throw if contract not found', async () => {
+      contractRepository.findOne = jest.fn().mockResolvedValue(null);
+      await expect(service.endContract('not-exist')).rejects.toThrow(NotFoundException);
     });
   });
 });

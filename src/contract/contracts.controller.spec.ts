@@ -12,8 +12,8 @@ describe('ContractsController', () => {
     user_email: 'test@example.com',
     request_id: 'req-1',
     status: 'accepted',
-    date_start: new Date('2023-01-01'),
-    date_finish: new Date('2023-12-31'),
+    date_start: '2023-01-01',
+    date_finish: '2023-12-31',
     client_signature: 'signature123',
   };
 
@@ -85,5 +85,40 @@ describe('ContractsController', () => {
     const result = await controller.getContractsByStatus('accepted');
     expect(result).toEqual([mockContract]);
     expect(service.getContractByStatus).toHaveBeenCalledWith('accepted');
+  });
+
+  it('should throw if service throws (createContract)', async () => {
+    jest.spyOn(service, 'createContract').mockRejectedValue(new Error('Create error'));
+    await expect(controller.createContract(mockContract)).rejects.toThrow('Create error');
+  });
+
+  it('should throw if service throws (getAllContracts)', async () => {
+    jest.spyOn(service, 'getAllContracts').mockRejectedValue(new Error('Get all error'));
+    await expect(controller.getAllContracts()).rejects.toThrow('Get all error');
+  });
+
+  it('should throw if service throws (getContractById)', async () => {
+    jest.spyOn(service, 'getContractById').mockRejectedValue(new Error('Not found'));
+    await expect(controller.getContractById('1')).rejects.toThrow('Not found');
+  });
+
+  it('should throw if service throws (updateContract)', async () => {
+    jest.spyOn(service, 'updateContract').mockRejectedValue(new Error('Update error'));
+    await expect(controller.updateContract('1', mockContract)).rejects.toThrow('Update error');
+  });
+
+  it('should throw if service throws (deleteContract)', async () => {
+    jest.spyOn(service, 'deleteContract').mockRejectedValue(new Error('Delete error'));
+    await expect(controller.deleteContract('1')).rejects.toThrow('Delete error');
+  });
+
+  it('should throw if service throws (getContractByUserEmail)', async () => {
+    jest.spyOn(service, 'getContractByUserEmail').mockRejectedValue(new Error('User email error'));
+    await expect(controller.getContractsByUserEmail('test@example.com')).rejects.toThrow('User email error');
+  });
+
+  it('should throw if service throws (getContractByStatus)', async () => {
+    jest.spyOn(service, 'getContractByStatus').mockRejectedValue(new Error('Status error'));
+    await expect(controller.getContractsByStatus('accepted')).rejects.toThrow('Status error');
   });
 });

@@ -15,6 +15,10 @@ describe('DevicesController', () => {
     deleteDevice: jest.fn(),
     createDevice: jest.fn(),
     getStock: jest.fn(),
+    getDeviceByName: jest.fn(),
+    getDeviceByType: jest.fn(),
+    getDeviceByStatus: jest.fn(),
+    deleteAllDevices: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -110,6 +114,54 @@ describe('DevicesController', () => {
       mockDevicesService.getStock.mockRejectedValue(new NotFoundException());
 
       await expect(controller.getStock('UnknownDevice')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getByName', () => {
+    it('should return devices by name', async () => {
+      const result = [{ name: 'Device1' }];
+      mockDevicesService.getDeviceByName = jest.fn().mockResolvedValue(result);
+      expect(await controller.getByName('Device1')).toEqual(result);
+    });
+    it('should throw NotFoundException if no device found', async () => {
+      mockDevicesService.getDeviceByName = jest.fn().mockRejectedValue(new NotFoundException());
+      await expect(controller.getByName('Unknown')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getByType', () => {
+    it('should return devices by type', async () => {
+      const result = [{ type: 'laptop' }];
+      mockDevicesService.getDeviceByType = jest.fn().mockResolvedValue(result);
+      expect(await controller.getByType('laptop')).toEqual(result);
+    });
+    it('should throw NotFoundException if no device found', async () => {
+      mockDevicesService.getDeviceByType = jest.fn().mockRejectedValue(new NotFoundException());
+      await expect(controller.getByType('Unknown')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getByStatus', () => {
+    it('should return devices by status', async () => {
+      const result = [{ status: 'active' }];
+      mockDevicesService.getDeviceByStatus = jest.fn().mockResolvedValue(result);
+      expect(await controller.getByStatus('active')).toEqual(result);
+    });
+    it('should throw NotFoundException if no device found', async () => {
+      mockDevicesService.getDeviceByStatus = jest.fn().mockRejectedValue(new NotFoundException());
+      await expect(controller.getByStatus('inactive')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('deleteAll', () => {
+    it('should call deleteAllDevices', async () => {
+      mockDevicesService.deleteAllDevices = jest.fn().mockResolvedValue(undefined);
+      await controller.deleteAll();
+      expect(mockDevicesService.deleteAllDevices).toHaveBeenCalled();
+    });
+    it('should throw NotFoundException if no devices to delete', async () => {
+      mockDevicesService.deleteAllDevices = jest.fn().mockRejectedValue(new NotFoundException());
+      await expect(controller.deleteAll()).rejects.toThrow(NotFoundException);
     });
   });
 });

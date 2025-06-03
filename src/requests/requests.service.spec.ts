@@ -47,8 +47,8 @@ describe('RequestsService', () => {
 
   const requestDto = {
     user_email: 'test@example.com',
-    date_start: new Date('2025-05-10'),
-    date_Finish: new Date('2025-05-15'),
+    date_start: '2025-05-10T00:00:00.000Z',
+    date_Finish: '2025-05-15T00:00:00.000Z',
     status: 'pendiente',
     admin_comment: 'Comentario de prueba',
     validateDates: true,
@@ -70,6 +70,24 @@ describe('RequestsService', () => {
       mockUserRepository.findOne.mockResolvedValue(null);
 
       await expect(service.createRequest(requestDto)).rejects.toThrow('El usuario no existe');
+    });
+
+    it('debería mapear correctamente los campos del DTO', async () => {
+      mockUserRepository.findOne.mockResolvedValueOnce({ email: requestDto.user_email });
+      const spyCreate = jest.spyOn(mockRequestRepository, 'create');
+      mockRequestRepository.save.mockResolvedValueOnce({ id: '1', ...requestDto });
+
+      await service.createRequest(requestDto);
+
+      expect(spyCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_email: requestDto.user_email,
+          date_start: requestDto.date_start,
+          date_finish: requestDto.date_Finish,
+          status: requestDto.status,
+          admin_comment: requestDto.admin_comment,
+        }),
+      );
     });
   });
 

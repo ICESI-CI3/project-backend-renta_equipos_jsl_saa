@@ -19,8 +19,8 @@ describe('RequestsController', () => {
 
   const validDto: CreateRequestDto = {
     user_email: 'usuario@example.com',
-    date_start: new Date('2025-05-10T08:00:00Z'),
-    date_Finish: new Date('2025-05-15T18:00:00Z'),
+    date_start: '2025-05-10T08:00:00Z',
+    date_Finish: '2025-05-15T18:00:00Z',
     validateDates: true,
     status: 'pendiente',
     admin_comment: 'Comentario de prueba',
@@ -80,5 +80,35 @@ describe('RequestsController', () => {
     const result = [{ id: 'uuid-123', ...validDto }];
     mockService.getRequestByStatus.mockResolvedValue(result);
     expect(await controller.getByStatus('pendiente')).toBe(result);
+  });
+
+  it('should throw if service throws (getById)', async () => {
+    jest.spyOn(service, 'getRequestById').mockRejectedValue(new Error('Not found'));
+    await expect(controller.getById('uuid-123')).rejects.toThrow('Not found');
+  });
+
+  it('should throw if service throws (update)', async () => {
+    jest.spyOn(service, 'updateRequest').mockRejectedValue(new Error('Update error'));
+    await expect(controller.update('uuid-123', validDto)).rejects.toThrow('Update error');
+  });
+
+  it('should throw if service throws (delete)', async () => {
+    jest.spyOn(service, 'deleteRequest').mockRejectedValue(new Error('Delete error'));
+    await expect(controller.delete('uuid-123')).rejects.toThrow('Delete error');
+  });
+
+  it('should throw if service throws (create)', async () => {
+    jest.spyOn(service, 'createRequest').mockRejectedValue(new Error('Create error'));
+    await expect(controller.create(validDto)).rejects.toThrow('Create error');
+  });
+
+  it('should throw if service throws (getByUserEmail)', async () => {
+    jest.spyOn(service, 'getRequestByUserEmail').mockRejectedValue(new Error('User email error'));
+    await expect(controller.getByUserEmail('usuario@example.com')).rejects.toThrow('User email error');
+  });
+
+  it('should throw if service throws (getByStatus)', async () => {
+    jest.spyOn(service, 'getRequestByStatus').mockRejectedValue(new Error('Status error'));
+    await expect(controller.getByStatus('pendiente')).rejects.toThrow('Status error');
   });
 });

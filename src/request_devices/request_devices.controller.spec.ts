@@ -21,6 +21,7 @@ describe('RequestDevicesController', () => {
             updateRequestDevice: jest.fn(),
             deleteRequestDevice: jest.fn(),
             getRequestDevicesByDeviceName: jest.fn(),
+            getRequestDevicesByRequestId: jest.fn(),
           },
         },
       ],
@@ -107,6 +108,24 @@ describe('RequestDevicesController', () => {
 
       expect(await controller.getRequestDevicesByDeviceName(device_name)).toEqual(result);
       expect(service.getRequestDevicesByDeviceName).toHaveBeenCalledWith(device_name);
+    });
+  });
+
+  describe('getRequestDevicesByRequestId', () => {
+    it('should call service.getRequestDevicesByRequestId and return the result', async () => {
+      const request_id = 'request-id';
+      const result: RequestDevice[] = [
+        { id: '1', device_id: 'device1', device_name: 'Device1', request_id } as RequestDevice,
+      ];
+      jest.spyOn(service, 'getRequestDevicesByRequestId').mockResolvedValue(result);
+      expect(await controller.getRequestDevicesByRequestId(request_id)).toEqual(result);
+      expect(service.getRequestDevicesByRequestId).toHaveBeenCalledWith(request_id);
+    });
+
+    it('should throw if service throws', async () => {
+      const request_id = 'bad-request-id';
+      jest.spyOn(service, 'getRequestDevicesByRequestId').mockRejectedValue(new Error('No existen solicitudes de equipos para esta solicitud'));
+      await expect(controller.getRequestDevicesByRequestId(request_id)).rejects.toThrow('No existen solicitudes de equipos para esta solicitud');
     });
   });
 });

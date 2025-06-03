@@ -179,6 +179,19 @@ describe('ContractDevicesService', () => {
         delivery_status: 'Pending' 
       })).rejects.toThrow();
     });
+
+    it('should throw if contract device not found after update', async () => {
+      (contractDeviceRepo.findOne as jest.Mock)
+        .mockResolvedValueOnce({ id: '1' }) // exists before update
+        .mockResolvedValueOnce(null); // not found after update
+      const updateDto: CreateContractDeviceDto = {
+        contract_id: '1',
+        device_name: 'DeviceX',
+        device_id: 'device1',
+        delivery_status: 'Pending',
+      };
+      await expect(service.updateContractDevice('1', updateDto)).rejects.toThrow();
+    });
   });
 
   describe('deleteContractDevice', () => {
@@ -204,6 +217,22 @@ describe('ContractDevicesService', () => {
     it('should throw if none found', async () => {
       (contractDeviceRepo.find as jest.Mock).mockResolvedValue([]);
       await expect(service.getContractDevicesByDeviceName('Unknown')).rejects.toThrow();
+    });
+  });
+
+  describe('getContractDevicesByContractId', () => {
+    it('should return contract devices for a contract', async () => {
+      const contractId = 'contract1';
+      const devices = [{ id: '1', contract_id: contractId }];
+      (contractDeviceRepo.find as jest.Mock).mockResolvedValue(devices);
+      const result = await service.getContractDevicesByContractId(contractId);
+      expect(result).toEqual(devices);
+      expect(contractDeviceRepo.find).toHaveBeenCalledWith({ where: { contract_id: contractId } });
+    });
+
+    it('should throw if no contract devices found', async () => {
+      (contractDeviceRepo.find as jest.Mock).mockResolvedValue([]);
+      await expect(service.getContractDevicesByContractId('notfound')).rejects.toThrow();
     });
   });
 });

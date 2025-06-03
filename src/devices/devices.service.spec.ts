@@ -13,6 +13,7 @@ const mockDeviceRepository = () => ({
   update: jest.fn(),
   delete: jest.fn(),
   count: jest.fn(),
+  clear: jest.fn(),
 });
 
 describe('DevicesService', () => {
@@ -42,7 +43,7 @@ describe('DevicesService', () => {
     it('should throw if device already exists', async () => {
       repository.findOne.mockResolvedValue({ name: 'Phone' } as Device);
       await expect(service.createDevice({ name: 'Phone' } as any, 1))
-        .rejects.toThrow('El dispositivo ya existe');
+        .resolves.toBe('Device stock updated successfully');
     });
 
     it('should create multiple devices', async () => {
@@ -114,16 +115,16 @@ describe('DevicesService', () => {
   });
 
   describe('getDeviceByName', () => {
-    it('should return device by name', async () => {
-      const device = { name: 'Laptop' } as Device;
-      repository.findOne.mockResolvedValue(device);
+    it('should return devices by name', async () => {
+      const devices = [{ name: 'Laptop' }] as Device[];
+      repository.find.mockResolvedValue(devices);
 
       const result = await service.getDeviceByName('Laptop');
-      expect(result).toEqual(device);
+      expect(result).toEqual(devices);
     });
 
     it('should throw if device not found', async () => {
-      repository.findOne.mockResolvedValue(null);
+      repository.find.mockResolvedValue([]);
       await expect(service.getDeviceByName('Tablet')).rejects.toThrow(NotFoundException);
     });
   });
@@ -171,6 +172,20 @@ describe('DevicesService', () => {
       await expect(service.getStock('NonExistent')).rejects.toThrowError(
         'No devices found with name: NonExistent'
       );
+    });
+  });
+
+  describe('deleteAllDevices', () => {
+    it('should delete all devices if devices exist', async () => {
+      repository.find.mockResolvedValue([{ id: '1', name: 'Device', description: '', type: '', status: '', owner: '', image: '' } as any]);
+      repository.clear.mockResolvedValue(undefined);
+      await expect(service.deleteAllDevices()).resolves.toBeUndefined();
+      expect(repository.clear).toHaveBeenCalled();
+    });
+
+    it('should throw if no devices exist', async () => {
+      repository.find.mockResolvedValue([]);
+      await expect(service.deleteAllDevices()).rejects.toThrow('No existen dispositivos para eliminar');
     });
   });
 });

@@ -71,4 +71,14 @@ describe('UsersController', () => {
       expect(usersService.rejectRequest).toHaveBeenCalledWith(idRequest);
     });
   });
+
+  describe('endContract', () => {
+    it('should call usersService.endContract and return success message', async () => {
+      const idContract = 'contract-123';
+      usersService.endContract = jest.fn().mockResolvedValue(undefined);
+      const result = await controller.endContract(idContract);
+      expect(usersService.endContract).toHaveBeenCalledWith(idContract);
+      expect(result).toEqual({ message: 'Contrato finalizado correctamente' });
+    });
+  });
 });
