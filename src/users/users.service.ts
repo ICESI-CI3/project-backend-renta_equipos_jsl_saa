@@ -45,7 +45,11 @@ export class UsersService {
 
         try {
 
-            const userExists = await this.userRepository.findOne({ where: { email: user.email } });
+            const userExists = await this.userRepository.findOne({ 
+                where: { 
+                    email: user.email 
+                } 
+            });
             if (userExists) {
                 throw new Error('El usuario ya existe');
             }
