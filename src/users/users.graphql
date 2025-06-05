@@ -1,0 +1,42 @@
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  cellphone: String!
+  address: String!
+  role: String!
+}
+
+input CreateUserInput {
+  name: String!
+  email: String!
+  password: String!
+  cellphone: String!
+  address: String!
+  role: String = "user"
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  cellphone: String
+  address: String
+  role: String
+}
+
+input PaginationInput {
+  limit: Int = 10
+  offset: Int = 0
+}
+
+type Query {
+  users(pagination: PaginationInput): [User!]!
+  user(id: ID!): User
+  userByEmail(email: String!): User
+}
+
+type Mutation {
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(id: ID!, updateUserInput: UpdateUserInput!): User!
+  removeUser(id: ID!): Boolean!
+}

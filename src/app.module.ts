@@ -20,11 +20,13 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 
 @Module({
   imports: [
-    ConfigModule.forRoot({isGlobal: true}),
+    ConfigModule.forRoot({isGlobal: true}),    
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: () => ({
         typePaths: ['./**/*.graphql'],
+        playground: true,
+        introspection: true,
       }),
     }),
     TypeOrmModule.forRoot({

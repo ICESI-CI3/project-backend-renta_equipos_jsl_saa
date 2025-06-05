@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { UsersResolver } from './users.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Request } from '../requests/entities/request.entity';
@@ -11,7 +12,7 @@ import { Device } from '../devices/entities/device.entity';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, UsersResolver],
   imports: [
     TypeOrmModule.forFeature([ User, Request, RequestDevice, Contract, ContractDevice, Device ]),
   ],
